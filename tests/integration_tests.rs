@@ -59,7 +59,6 @@ async fn test_end_to_end_workflow_add_rule_find_violation() -> Result<()> {
     setup_test_git_repo(repo_path)?;
     
     // Change to the repo directory
-    let original_dir = env::current_dir()?;
     env::set_current_dir(repo_path)?;
     
     // Create custom rules config for this test
