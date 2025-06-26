@@ -107,12 +107,12 @@ patingin review --fix
 - **Elixir** (13 rules) - Dynamic atoms, GenServer patterns, Ecto security
 - **JavaScript** (8 rules) - Console logs, eval usage, promise handling
 - **TypeScript** (3 rules) - Type safety, async patterns
-- **Python** (8 rules) - Import patterns, exception handling
+- **Python** (9 rules) - Import patterns, exception handling
 - **Rust** (6 rules) - Memory safety, error handling
 - **Zig** (3 rules) - Memory management, safety patterns
 - **SQL** (7 rules) - Injection prevention, query optimization
 
-**Total: 51 built-in rules + unlimited custom rules**
+**Total: 52 built-in rules + unlimited custom rules**
 
 ## 🔧 Example Workflows
 
