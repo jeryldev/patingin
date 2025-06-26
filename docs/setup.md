@@ -168,7 +168,7 @@ patingin setup
 #   Authentication: ✅ Authenticated
 #   Auto-fix capability: ✅ Ready
 
-# Test auto-fix functionality
+# Test fix functionality
 patingin review --suggest
 ```
 
@@ -324,13 +324,13 @@ Add to your `.emacs` or `init.el`:
   (interactive)
   (compile "patingin review"))
 
-(defun patingin-auto-fix ()
-  "Run patingin auto-fix on current project"
+(defun patingin-fix ()
+  "Run patingin fix on current project"
   (interactive)
   (compile "patingin review --fix"))
 
 (global-set-key (kbd "C-c p r") 'patingin-review)
-(global-set-key (kbd "C-c p f") 'patingin-auto-fix)
+(global-set-key (kbd "C-c p f") 'patingin-fix)
 ```
 
 ---
@@ -401,7 +401,7 @@ Create `.gitmessage` template:
 # Patingin check:
 # ✅ Ran `patingin review --staged`
 # ✅ No critical violations found
-# ✅ Applied auto-fixes where appropriate
+# ✅ Applied fixes where appropriate
 
 # Types: feat, fix, docs, style, refactor, test, chore
 ```

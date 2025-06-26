@@ -289,17 +289,17 @@ patingin review
 ### CI/CD Integration
 
 ```yaml
-# .github/workflows/auto-fix.yml
-name: Auto-fix Code Issues
+# .github/workflows/fix.yml
+name: Fix Code Issues
 
 on:
   pull_request:
     branches: [ main ]
 
 jobs:
-  auto-fix:
+  fix:
     runs-on: ubuntu-latest
-    if: contains(github.event.pull_request.labels.*.name, 'auto-fix')
+    if: contains(github.event.pull_request.labels.*.name, 'fix')
     
     steps:
     - uses: actions/checkout@v3
@@ -429,7 +429,7 @@ patingin review --language elixir --fix
 ### Safety Measures
 
 1. **Always Review Fixes**: Start with `--suggest` mode
-2. **Use Version Control**: Commit before running auto-fix
+2. **Use Version Control**: Commit before running fix
 3. **Test After Fixes**: Run tests after applying fixes
 4. **Gradual Adoption**: Start with high-confidence fixes only
 
@@ -437,7 +437,7 @@ patingin review --language elixir --fix
 
 ```bash
 # 1. Backup before batch fixes
-git add . && git commit -m "Before auto-fix"
+git add . && git commit -m "Before fix"
 
 # 2. Use interactive mode
 patingin review --fix
