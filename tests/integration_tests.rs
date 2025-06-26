@@ -369,7 +369,6 @@ async fn test_review_command_json_output() -> Result<()> {
     
     setup_test_git_repo(repo_path)?;
     
-    let original_dir = env::current_dir()?;
     env::set_current_dir(repo_path)?;
     
     // Create a file with known violations
