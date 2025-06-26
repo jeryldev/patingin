@@ -5,7 +5,7 @@ edition = "2021"
 authors = ["patingin contributors"]
 description = "All-seeing code guardian for pull request inspection and anti-pattern detection"
 license = "MIT"
-repository = "https://github.com/YOUR_USERNAME/patingin"
+repository = "https://github.com/jeryldev/patingin"
 keywords = ["code-review", "anti-patterns", "linter", "static-analysis"]
 categories = ["development-tools", "command-line-utilities"]
 
