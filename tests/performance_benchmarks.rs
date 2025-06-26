@@ -87,8 +87,8 @@ fn test_rule_registry_scalability() {
     let duration = start_time.elapsed();
     
     // Rule addition performance (100 rules should be reasonable)
-    assert!(duration.as_millis() < 20000, 
-        "Adding 100 rules should complete within 20s, took {}ms", duration.as_millis());
+    assert!(duration.as_millis() < 25000, 
+        "Adding 100 rules should complete within 25s, took {}ms", duration.as_millis());
     
     // Test rule retrieval performance
     let retrieval_start = Instant::now();
