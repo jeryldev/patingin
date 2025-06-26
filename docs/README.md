@@ -82,8 +82,8 @@ Complete installation, configuration, and integration guide.
 # Quick code review
 patingin review
 
-# Apply automatic fixes
-patingin review --auto-fix
+# Apply interactive fixes
+patingin review --fix
 
 # Pre-commit check
 patingin review --staged --severity critical
@@ -121,7 +121,7 @@ patingin setup
 ### For Individual Developers
 1. **Daily Code Review**: `patingin review` after each change
 2. **Pre-commit Validation**: `patingin review --staged` before commits
-3. **Auto-fixing Issues**: `patingin review --auto-fix` for quick improvements
+3. **Interactive Fixing**: `patingin review --fix` for collaborative improvements
 4. **Learning Best Practices**: `patingin rules --detail <rule_id>` for education
 
 ### For Teams
@@ -157,7 +157,7 @@ patingin review --staged --severity critical --no-color
 {
   "label": "Patingin Review",
   "command": "patingin",
-  "args": ["review", "--auto-fix"]
+  "args": ["review", "--fix"]
 }
 ```
 
@@ -195,5 +195,5 @@ patingin setup              # Environment diagnostics
 **Ready to improve your code quality?** Start with the installation guide and experience focused, intelligent code review.
 
 ```bash
-patingin review --auto-fix
+patingin review --fix
 ```

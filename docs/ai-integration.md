@@ -107,7 +107,7 @@ Apply all fixes automatically without prompts:
 
 ```bash
 # This workflow is deprecated - use interactive --fix instead
-# patingin review --auto-fix --no-confirm
+# patingin review --fix --no-confirm
 
 # Example output:
 # 🤖 Processing 5 violations with Claude Code...
@@ -317,8 +317,8 @@ jobs:
     
     - name: Apply Auto-fixes (Deprecated)
       run: |
-        # Note: --auto-fix is deprecated, consider using --fix in interactive mode
-        # patingin review --since origin/main --auto-fix --no-confirm --confidence 0.8
+        # Note: --fix is deprecated, consider using --fix in interactive mode
+        # patingin review --since origin/main --fix --no-confirm --confidence 0.8
     
     - name: Commit fixes
       run: |
@@ -545,7 +545,7 @@ patingin review --fix && mix test
 
 ```bash
 # Generate fix reports
-patingin review --auto-fix --json > fix-report.json
+patingin review --fix --json > fix-report.json
 
 # Analyze fix success rates
 cat fix-report.json | jq '.fix_details[] | .applied'
@@ -558,11 +558,11 @@ cat fix-report.json | jq '.fix_details[] | .fix_result.confidence'
 
 ```bash
 # Weekly fix summary
-patingin review --since "1 week ago" --auto-fix --json | \
+patingin review --since "1 week ago" --fix --json | \
   jq '{fixed: .fixed_violations, total: .total_violations}'
 
 # Most common fixes
-patingin review --auto-fix --json | \
+patingin review --fix --json | \
   jq -r '.fix_details[] | .violation.rule.name' | \
   sort | uniq -c | sort -nr
 ```

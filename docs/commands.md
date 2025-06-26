@@ -101,13 +101,13 @@ patingin review --suggest
 
 #### Apply Automatic Fixes
 ```bash
-patingin review --auto-fix
+patingin review --fix
 # Interactive mode: asks for confirmation before each fix
 ```
 
 #### Batch Apply Fixes
 ```bash
-patingin review --auto-fix --no-confirm
+patingin review --fix --no-confirm
 # Non-interactive mode: applies all fixes automatically
 ```
 
@@ -125,7 +125,7 @@ patingin review --since origin/main --json > violations.json
 
 #### Focus on Security
 ```bash
-patingin review --severity critical --auto-fix
+patingin review --severity critical --fix
 ```
 
 #### Language-specific Review

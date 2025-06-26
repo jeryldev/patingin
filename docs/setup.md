@@ -275,7 +275,7 @@ Create `.vscode/tasks.json`:
       "label": "Patingin Auto-fix",
       "type": "shell",
       "command": "patingin",
-      "args": ["review", "--auto-fix"],
+      "args": ["review", "--fix"],
       "group": "build"
     }
   ]
@@ -306,7 +306,7 @@ Add to your `.vimrc` or `init.vim`:
 ```vim
 " Patingin integration
 nnoremap <leader>pr :!patingin review<CR>
-nnoremap <leader>pf :!patingin review --auto-fix<CR>
+nnoremap <leader>pf :!patingin review --fix<CR>
 nnoremap <leader>ps :!patingin review --suggest<CR>
 
 " Quick fix for current file
@@ -327,7 +327,7 @@ Add to your `.emacs` or `init.el`:
 (defun patingin-auto-fix ()
   "Run patingin auto-fix on current project"
   (interactive)
-  (compile "patingin review --auto-fix"))
+  (compile "patingin review --fix"))
 
 (global-set-key (kbd "C-c p r") 'patingin-review)
 (global-set-key (kbd "C-c p f") 'patingin-auto-fix)
@@ -351,7 +351,7 @@ echo "🔍 Running Patingin pre-commit check..."
 if ! patingin review --staged --severity critical --no-color; then
     echo ""
     echo "❌ Critical violations found in staged changes."
-    echo "💡 Fix them with: patingin review --staged --auto-fix"
+    echo "💡 Fix them with: patingin review --staged --fix"
     echo "💡 Or skip with: git commit --no-verify"
     exit 1
 fi
@@ -615,7 +615,7 @@ Add to your shell profile (`.bashrc`, `.zshrc`, etc.):
 ```bash
 # Patingin aliases
 alias pr='patingin review'
-alias prf='patingin review --auto-fix'
+alias prf='patingin review --fix'
 alias prs='patingin review --suggest'
 alias prst='patingin review --staged'
 
@@ -628,7 +628,7 @@ function pcheck() {
 # Auto-fix and commit
 function pautofix() {
     echo "🤖 Auto-fixing issues..."
-    patingin review --auto-fix --no-confirm
+    patingin review --fix --no-confirm
     if [ $? -eq 0 ]; then
         echo "✅ Auto-fixes applied successfully"
         git add -u

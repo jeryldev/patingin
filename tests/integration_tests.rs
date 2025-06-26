@@ -1,13 +1,45 @@
 use anyhow::Result;
 use std::env;
 use std::fs;
+use std::path::PathBuf;
 use std::process::Command;
+use std::sync::Mutex;
 use tempfile::TempDir;
 
 use patingin::cli::commands::{review, setup};
 use patingin::core::{Language, CustomRulesManager, CustomRule};
 use patingin::git::{DiffScope, GitDiffParser, GitIntegration};
 use patingin::external::ClaudeCodeIntegration;
+
+/// Global mutex to serialize tests that change working directory
+/// This prevents race conditions when multiple tests run in parallel
+static TEST_MUTEX: Mutex<()> = Mutex::new(());
+
+/// Helper struct to ensure working directory is always restored
+/// and serialize access to prevent race conditions
+struct DirectoryGuard {
+    _lock: std::sync::MutexGuard<'static, ()>,
+    original_dir: PathBuf,
+}
+
+impl DirectoryGuard {
+    fn new() -> Result<Self> {
+        let lock = TEST_MUTEX.lock().unwrap();
+        let original_dir = env::current_dir()?;
+        
+        Ok(DirectoryGuard {
+            _lock: lock,
+            original_dir,
+        })
+    }
+}
+
+impl Drop for DirectoryGuard {
+    fn drop(&mut self) {
+        // Always restore directory, ignore errors if original doesn't exist
+        let _ = env::set_current_dir(&self.original_dir);
+    }
+}
 
 /// Integration tests for real git workflows and end-to-end scenarios
 /// 
@@ -19,6 +51,7 @@ use patingin::external::ClaudeCodeIntegration;
 
 #[tokio::test]
 async fn test_end_to_end_workflow_add_rule_find_violation() -> Result<()> {
+    let _guard = DirectoryGuard::new()?;
     let temp_dir = TempDir::new()?;
     let repo_path = temp_dir.path();
     
@@ -93,9 +126,6 @@ function debugInfo() {
     // This should detect the console.log violation in the new line
     let result = review::run(review_args).await;
     assert!(result.is_ok(), "Review should succeed");
-    
-    // Restore original directory
-    env::set_current_dir(original_dir)?;
     
     Ok(())
 }
@@ -241,6 +271,8 @@ async fn test_claude_code_detection_scenarios() -> Result<()> {
 
 #[tokio::test]
 async fn test_setup_command_git_repository_scenarios() -> Result<()> {
+    let _guard = DirectoryGuard::new()?;
+    
     // Test 1: Setup in a git repository
     let temp_dir = TempDir::new()?;
     let repo_path = temp_dir.path();
@@ -259,12 +291,12 @@ async fn test_setup_command_git_repository_scenarios() -> Result<()> {
     let result = setup::run().await;
     assert!(result.is_ok(), "Setup should work in non-git directory");
     
-    env::set_current_dir(original_dir)?;
     Ok(())
 }
 
 #[tokio::test]
 async fn test_git_integration_branch_detection() -> Result<()> {
+    let _guard = DirectoryGuard::new()?;
     let temp_dir = TempDir::new()?;
     let repo_path = temp_dir.path();
     
@@ -281,12 +313,12 @@ async fn test_git_integration_branch_detection() -> Result<()> {
     assert!(!current_branch.is_empty(), "Should detect current branch");
     assert!(current_branch == "main" || current_branch == "feature-branch" || current_branch == "HEAD");
     
-    env::set_current_dir(original_dir)?;
     Ok(())
 }
 
 #[tokio::test]
 async fn test_review_command_with_no_violations() -> Result<()> {
+    let _guard = DirectoryGuard::new()?;
     let temp_dir = TempDir::new()?;
     let repo_path = temp_dir.path();
     
@@ -330,12 +362,12 @@ end
     let result = review::run(review_args).await;
     assert!(result.is_ok(), "Review should succeed even with no violations");
     
-    env::set_current_dir(original_dir)?;
     Ok(())
 }
 
 #[tokio::test]
 async fn test_review_command_json_output() -> Result<()> {
+    let _guard = DirectoryGuard::new()?;
     let temp_dir = TempDir::new()?;
     let repo_path = temp_dir.path();
     
@@ -388,7 +420,6 @@ function test() {
     let result = review::run(review_args).await;
     assert!(result.is_ok(), "Review with JSON output should succeed");
     
-    env::set_current_dir(original_dir)?;
     Ok(())
 }
 
