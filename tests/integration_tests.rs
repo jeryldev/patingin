@@ -277,7 +277,6 @@ async fn test_setup_command_git_repository_scenarios() -> Result<()> {
     let repo_path = temp_dir.path();
     setup_test_git_repo(repo_path)?;
     
-    let original_dir = env::current_dir()?;
     env::set_current_dir(repo_path)?;
     
     let result = setup::run().await;
