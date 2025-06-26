@@ -1,0 +1,74 @@
+# TypeScript Anti-Pattern Rules
+# Source: https://ducin.dev/typescript-anti-patterns
+
+- id: "any_type_overuse"
+  name: "Overuse of any Type"
+  language: "typescript"
+  severity: "critical"
+  description: "any eliminates type safety benefits and hides potential errors"
+  detection_method:
+    type: "regex"
+    pattern: ":\\s*any\\b"
+  fix_suggestion: "Use specific types, unknown, or proper type assertions"
+  source_url: "https://ducin.dev/typescript-anti-patterns"
+  claude_code_fixable: true
+  examples:
+    - bad: "function process(data: any): any"
+      good: "function process<T>(data: T): ProcessedData<T>"
+      explanation: "Generic types maintain type safety while providing flexibility"
+  tags: ["type-safety", "maintainability"]
+  enabled: true
+
+- id: "missing_type_annotations"
+  name: "Missing Type Annotations"
+  language: "typescript"
+  severity: "critical"
+  description: "Function parameters without types reduce code clarity and type safety"
+  detection_method:
+    type: "regex"
+    pattern: "function\\s+\\w+\\s*\\([^:)]+\\)"
+  fix_suggestion: "Add explicit type annotations to function parameters"
+  source_url: "https://www.packtpub.com/en-us/product/typescript-5-design-patterns-and-best-practices-9781835883235"
+  claude_code_fixable: true
+  examples:
+    - bad: "function calculateTotal(items) { ... }"
+      good: "function calculateTotal(items: CartItem[]): number { ... }"
+      explanation: "Type annotations make function contracts explicit and catch errors"
+  tags: ["type-safety", "documentation"]
+  enabled: true
+
+- id: "over_typing"
+  name: "Over-typing"
+  language: "typescript"
+  severity: "major"
+  description: "Manual type declarations where TypeScript inference works fine"
+  detection_method:
+    type: "custom"
+    pattern: "detect redundant type annotations where inference is sufficient"
+  fix_suggestion: "Remove unnecessary type annotations and leverage TypeScript inference"
+  source_url: "https://ducin.dev/typescript-anti-patterns"
+  claude_code_fixable: true
+  examples:
+    - bad: "const count: number = items.length;"
+      good: "const count = items.length;"
+      explanation: "TypeScript infers number type from .length property"
+  tags: ["maintainability", "clarity"]
+  enabled: true
+
+- id: "non_null_assertion_overuse"
+  name: "Overuse of Non-null Assertion (!)"
+  language: "typescript"
+  severity: "major"
+  description: "Excessive use of ! operator bypasses TypeScript's null safety"
+  detection_method:
+    type: "regex"
+    pattern: "\\w+!"
+  fix_suggestion: "Use proper null checks or optional chaining instead of forcing non-null"
+  source_url: "https://ducin.dev/typescript-anti-patterns"
+  claude_code_fixable: true
+  examples:
+    - bad: "const value = data.value!.toString();"
+      good: "const value = data.value?.toString() ?? 'default';"
+      explanation: "Optional chaining and nullish coalescing are safer than assertions"
+  tags: ["safety", "null-handling"]
+  enabled: true

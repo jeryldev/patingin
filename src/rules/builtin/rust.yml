@@ -1,0 +1,110 @@
+# Rust Anti-Pattern Rules
+# Source: https://rust-lang.github.io/rust-clippy/
+
+- id: "unwrap_in_production"
+  name: "Using .unwrap() in Production"
+  language: "rust"
+  severity: "critical"
+  description: ".unwrap() calls can cause panics and crash the application"
+  detection_method:
+    type: "regex"
+    pattern: "\\.unwrap\\(\\)"
+  fix_suggestion: "Use proper error propagation with ? operator or explicit error handling"
+  source_url: "https://rust-lang.github.io/rust-clippy/"
+  claude_code_fixable: true
+  examples:
+    - bad: "let value = option.unwrap();"
+      good: "let value = option?;"
+      explanation: "? operator propagates errors instead of panicking"
+  tags: ["safety", "error-handling"]
+  enabled: true
+
+- id: "unnecessary_clone"
+  name: "Unnecessary Cloning"
+  language: "rust"
+  severity: "major"
+  description: "Cloning borrowed data creates unnecessary performance overhead"
+  detection_method:
+    type: "regex"
+    pattern: "\\.clone\\(\\)"
+  fix_suggestion: "Use borrowing when possible to avoid unnecessary allocations"
+  source_url: "https://rust-trends.com/posts/mastering-clippy-elevating-your-rust-code-quality/"
+  claude_code_fixable: true
+  examples:
+    - bad: "process_data(data.clone())"
+      good: "process_data(&data)"
+      explanation: "Borrowing avoids unnecessary memory allocation"
+  tags: ["performance", "memory"]
+  enabled: true
+
+- id: "expect_without_message"
+  name: "Using .expect() Without Descriptive Message"
+  language: "rust"
+  severity: "major"
+  description: "expect() without clear error messages makes debugging difficult"
+  detection_method:
+    type: "regex"
+    pattern: "\\.expect\\(\\\"[^\\\"]{0,10}\\\"\\)"
+  fix_suggestion: "Provide descriptive error messages that explain what went wrong"
+  source_url: "https://rust-lang.github.io/rust-clippy/"
+  claude_code_fixable: true
+  examples:
+    - bad: "file.read().expect(\"error\")"
+      good: "file.read().expect(\"Failed to read configuration file\")"
+      explanation: "Descriptive messages help with debugging and user experience"
+  tags: ["error-handling", "debugging"]
+  enabled: true
+
+- id: "string_to_string"
+  name: "Redundant String Conversions"
+  language: "rust"
+  severity: "major"
+  description: "Converting String to String or &str to String unnecessarily"
+  detection_method:
+    type: "regex"
+    pattern: "\\.to_string\\(\\)\\.to_string\\(\\)|String::from\\(.*\\.to_string\\(\\)\\)"
+  fix_suggestion: "Remove redundant conversions or use appropriate string types"
+  source_url: "https://rust-lang.github.io/rust-clippy/"
+  claude_code_fixable: true
+  examples:
+    - bad: "let s = String::from(text.to_string());"
+      good: "let s = text.to_string();"
+      explanation: "Avoid double conversions for better performance"
+  tags: ["performance", "redundancy"]
+  enabled: true
+
+- id: "vec_push_in_loop"
+  name: "Vec::push in Loop Without Capacity"
+  language: "rust"
+  severity: "major"
+  description: "Growing Vec without pre-allocation causes multiple reallocations"
+  detection_method:
+    type: "regex"
+    pattern: "let\\s+mut\\s+\\w+\\s*=\\s*Vec::new\\(\\);\\s*\\n.*for.*\\{\\s*\\n.*\\.push\\("
+  fix_suggestion: "Use Vec::with_capacity() when the size is known"
+  source_url: "https://rust-lang.github.io/rust-clippy/"
+  claude_code_fixable: true
+  examples:
+    - bad: "let mut vec = Vec::new();\nfor item in items {\n    vec.push(process(item));\n}"
+      good: "let mut vec = Vec::with_capacity(items.len());\nfor item in items {\n    vec.push(process(item));\n}"
+      explanation: "Pre-allocation prevents expensive reallocations"
+  tags: ["performance", "memory"]
+  enabled: true
+
+- id: "inefficient_string_building"
+  name: "Inefficient String Building"
+  language: "rust"
+  severity: "warning"
+  description: "Using + operator for multiple string concatenations is inefficient"
+  detection_method:
+    type: "regex"
+    pattern: "\\w+\\s*\\+\\s*&\\w+\\s*\\+\\s*&\\w+"
+  fix_suggestion: "Use format! macro or String::push_str for multiple concatenations"
+  source_url: "https://rust-lang.github.io/rust-clippy/"
+  claude_code_fixable: true
+  examples:
+    - bad: "let result = name + \", \" + &age.to_string() + \" years old\";"
+      good: "let result = format!(\"{}, {} years old\", name, age);"
+      explanation: "format! macro is more efficient and readable for complex strings"
+  tags: ["performance", "readability"]
+  enabled: true

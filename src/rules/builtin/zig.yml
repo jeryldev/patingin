@@ -1,0 +1,74 @@
+# Zig Anti-Pattern Rules
+# Source: https://ziglang.org/documentation/master/
+
+- id: "ignored_error_returns"
+  name: "Ignoring Error Returns"
+  language: "zig"
+  severity: "critical"
+  description: "Not handling ! return types leads to silent failures"
+  detection_method:
+    type: "custom"
+    pattern: "detect functions returning ! type without error handling"
+  fix_suggestion: "Use try, catch, or explicit error handling for error union types"
+  source_url: "https://ziglang.org/documentation/master/"
+  claude_code_fixable: true
+  examples:
+    - bad: "const result = risky_function();"
+      good: "const result = try risky_function();"
+      explanation: "try keyword properly handles error union types"
+  tags: ["error-handling", "safety"]
+  enabled: true
+
+- id: "manual_memory_management"
+  name: "Manual Memory Management Without Defer"
+  language: "zig"
+  severity: "major"
+  description: "Allocating memory without using defer for cleanup can cause leaks"
+  detection_method:
+    type: "custom"
+    pattern: "detect alloc without corresponding defer"
+  fix_suggestion: "Use defer allocator.free() immediately after allocation"
+  source_url: "https://ziglang.org/documentation/master/"
+  claude_code_fixable: true
+  examples:
+    - bad: "const memory = try allocator.alloc(u8, size);"
+      good: "const memory = try allocator.alloc(u8, size);\ndefer allocator.free(memory);"
+      explanation: "defer ensures memory is freed even if errors occur"
+  tags: ["memory-management", "reliability"]
+  enabled: true
+
+- id: "unnecessary_comptime"
+  name: "Unnecessary Comptime Usage"
+  language: "zig"
+  severity: "warning"
+  description: "Using comptime when runtime evaluation is sufficient"
+  detection_method:
+    type: "regex"
+    pattern: "comptime\\s+var\\s+\\w+\\s*=\\s*\\d+"
+  fix_suggestion: "Use comptime only for compile-time known values"
+  source_url: "https://ziglang.org/documentation/master/"
+  claude_code_fixable: true
+  examples:
+    - bad: "comptime var count = 42;"
+      good: "const count = 42;"
+      explanation: "const is sufficient for compile-time constants"
+  tags: ["performance", "clarity"]
+  enabled: true
+
+- id: "unreachable_code"
+  name: "Unreachable Code After Return"
+  language: "zig"
+  severity: "critical"
+  description: "Code after return statements is unreachable and indicates logic errors"
+  detection_method:
+    type: "regex"
+    pattern: "return\\s+.*;\\s*\\n\\s*\\w+"
+  fix_suggestion: "Remove unreachable code or fix control flow logic"
+  source_url: "https://ziglang.org/documentation/master/"
+  claude_code_fixable: true
+  examples:
+    - bad: "return value;\nconsole.log('this will never run');"
+      good: "console.log('this runs');\nreturn value;"
+      explanation: "Code after return is never executed"
+  tags: ["correctness", "logic"]
+  enabled: true

@@ -1,0 +1,164 @@
+# Python Anti-Pattern Rules
+# Source: https://docs.quantifiedcode.com/python-anti-patterns/
+
+- id: "mutable_default_arguments"
+  name: "Mutable Default Arguments"
+  language: "python"
+  severity: "critical"
+  description: "Mutable objects as defaults create shared state between function calls"
+  detection_method:
+    type: "regex"
+    pattern: "def\\s+\\w+\\([^)]*=\\s*\\[\\]"
+  fix_suggestion: "Use None as default, initialize mutable object in function body"
+  source_url: "https://docs.quantifiedcode.com/python-anti-patterns/"
+  claude_code_fixable: true
+  examples:
+    - bad: "def append_item(item, target_list=[]):"
+      good: "def append_item(item, target_list=None):\n    if target_list is None:\n        target_list = []"
+      explanation: "None default prevents shared mutable state between calls"
+  tags: ["bugs", "state-management"]
+  enabled: true
+
+- id: "bare_except"
+  name: "Bare Except Clauses"
+  language: "python"
+  severity: "critical"
+  description: "except: catches all exceptions making debugging extremely difficult"
+  detection_method:
+    type: "regex"
+    pattern: "except:\\s*$"
+  fix_suggestion: "Catch specific exceptions or use 'except Exception as e:' for broad catching"
+  source_url: "https://realpython.com/the-most-diabolical-python-antipattern/"
+  claude_code_fixable: true
+  examples:
+    - bad: "try:\n    risky_operation()\nexcept:\n    pass"
+      good: "try:\n    risky_operation()\nexcept (ValueError, TypeError) as e:\n    logger.error(f'Operation failed: {e}')"
+      explanation: "Specific exception handling enables proper error diagnosis"
+  tags: ["error-handling", "debugging"]
+  enabled: true
+
+- id: "missing_context_managers"
+  name: "Missing Context Managers"
+  language: "python"
+  severity: "major"
+  description: "Opening files without with statement can cause resource leaks"
+  detection_method:
+    type: "regex"
+    pattern: "\\w+\\s*=\\s*open\\s*\\("
+  fix_suggestion: "Use with statement for automatic resource cleanup"
+  source_url: "https://deepsource.com/blog/8-new-python-antipatterns"
+  claude_code_fixable: true
+  examples:
+    - bad: "f = open('file.txt', 'r')\ncontent = f.read()\nf.close()"
+      good: "with open('file.txt', 'r') as f:\n    content = f.read()"
+      explanation: "Context managers ensure files are closed even if exceptions occur"
+  tags: ["resource-management", "reliability"]
+  enabled: true
+
+- id: "string_concatenation_loop"
+  name: "String Concatenation in Loop"
+  language: "python"
+  severity: "major"
+  description: "Concatenating strings in loops is inefficient due to string immutability"
+  detection_method:
+    type: "regex"
+    pattern: "for\\s+.*:\\s*\\n\\s*\\w+\\s*\\+=\\s*.*str"
+  fix_suggestion: "Use list.append() and ''.join() or f-strings for better performance"
+  source_url: "https://docs.quantifiedcode.com/python-anti-patterns/"
+  claude_code_fixable: true
+  examples:
+    - bad: "result = ''\nfor item in items:\n    result += str(item)"
+      good: "result = ''.join(str(item) for item in items)"
+      explanation: "join() is more efficient for multiple string concatenations"
+  tags: ["performance", "loops"]
+  enabled: true
+
+- id: "dict_get_with_default"
+  name: "Using dict[key] Instead of dict.get()"
+  language: "python"
+  severity: "major"
+  description: "Direct dictionary access raises KeyError when key is missing"
+  detection_method:
+    type: "regex"
+    pattern: "\\w+\\[['\"']\\w+['\"']\\]"
+  fix_suggestion: "Use dict.get(key, default) for safer access with fallbacks"
+  source_url: "https://docs.quantifiedcode.com/python-anti-patterns/"
+  claude_code_fixable: true
+  examples:
+    - bad: "value = config['debug_mode']"
+      good: "value = config.get('debug_mode', False)"
+      explanation: "get() method prevents KeyError and provides sensible defaults"
+  tags: ["error-handling", "safety"]
+  enabled: true
+
+- id: "global_variable_usage"
+  name: "Global Variable Usage"
+  language: "python"
+  severity: "major"
+  description: "Global variables make code harder to test and maintain"
+  detection_method:
+    type: "regex"
+    pattern: "^global\\s+\\w+"
+  fix_suggestion: "Use function parameters, class attributes, or dependency injection"
+  source_url: "https://docs.quantifiedcode.com/python-anti-patterns/"
+  claude_code_fixable: false
+  examples:
+    - bad: "global config\ndef process_data():\n    global config\n    return config['value']"
+      good: "def process_data(config):\n    return config['value']"
+      explanation: "Parameter passing makes dependencies explicit and testable"
+  tags: ["maintainability", "testing"]
+  enabled: true
+
+- id: "is_for_equality"
+  name: "Using 'is' for Equality Comparison"
+  language: "python"
+  severity: "warning"
+  description: "Using 'is' for value comparison instead of identity comparison"
+  detection_method:
+    type: "regex"
+    pattern: "\\s+is\\s+['\"].*['\"]|\\s+is\\s+\\d+"
+  fix_suggestion: "Use '==' for value comparison, 'is' only for identity (None, True, False)"
+  source_url: "https://docs.quantifiedcode.com/python-anti-patterns/"
+  claude_code_fixable: true
+  examples:
+    - bad: "if status is 'active':"
+      good: "if status == 'active':"
+      explanation: "'is' checks identity, '==' checks equality"
+  tags: ["correctness", "comparison"]
+  enabled: true
+
+- id: "unused_imports"
+  name: "Unused Import Statements"
+  language: "python"
+  severity: "warning"
+  description: "Importing modules that are never used clutters code and slows startup"
+  detection_method:
+    type: "custom"
+    pattern: "detect import statements with no usage in file"
+  fix_suggestion: "Remove unused imports or use tools like autoflake"
+  source_url: "https://docs.quantifiedcode.com/python-anti-patterns/"
+  claude_code_fixable: true
+  examples:
+    - bad: "import os\nimport sys\nprint('hello')"
+      good: "print('hello')"
+      explanation: "Only import what you actually use"
+  tags: ["cleanup", "performance"]
+  enabled: true
+
+- id: "lambda_assignment"
+  name: "Lambda Assignment to Variables"
+  language: "python"
+  severity: "warning"
+  description: "Assigning lambda to variables defeats the purpose of lambda functions"
+  detection_method:
+    type: "regex"
+    pattern: "\\w+\\s*=\\s*lambda"
+  fix_suggestion: "Use def to define proper functions instead of assigning lambdas"
+  source_url: "https://docs.quantifiedcode.com/python-anti-patterns/"
+  claude_code_fixable: true
+  examples:
+    - bad: "func = lambda x: x * 2"
+      good: "def func(x):\n    return x * 2"
+      explanation: "Named functions are clearer and support better tooling"
+  tags: ["readability", "style"]
+  enabled: true

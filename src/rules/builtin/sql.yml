@@ -1,0 +1,128 @@
+# SQL Anti-Pattern Rules
+# Source: https://sonra.io/mastering-sql-how-to-detect-and-avoid-34-common-sql-antipatterns/
+
+- id: "sql_injection"
+  name: "SQL Injection"
+  language: "sql"
+  severity: "critical"
+  description: "String concatenation in queries creates security vulnerabilities"
+  detection_method:
+    type: "regex"
+    pattern: "\\\".*\\+.*\\\"|\\\".*\\#\\{.*\\}\\\""
+  fix_suggestion: "Use parameterized queries with placeholder parameters"
+  source_url: "https://sonra.io/mastering-sql-how-to-detect-and-avoid-34-common-sql-antipatterns/"
+  claude_code_fixable: true
+  examples:
+    - bad: "query = \"SELECT * FROM users WHERE name = '\" + user_input + \"'\""
+      good: "query = \"SELECT * FROM users WHERE name = $1\", [user_input]"
+      explanation: "Parameterized queries prevent SQL injection attacks"
+  tags: ["security", "injection"]
+  enabled: true
+
+- id: "missing_indexes"
+  name: "Missing Indexes on JOIN Columns"
+  language: "sql"
+  severity: "critical"
+  description: "Foreign keys without indexes cause poor query performance"
+  detection_method:
+    type: "custom"
+    pattern: "detect foreign key columns without corresponding indexes"
+  fix_suggestion: "Add indexes on frequently joined columns"
+  source_url: "https://speakdatascience.com/postgresql-best-practices/"
+  claude_code_fixable: false
+  examples:
+    - bad: "-- Foreign key without index"
+      good: "CREATE INDEX idx_orders_user_id ON orders(user_id);"
+      explanation: "Indexes dramatically improve JOIN performance"
+  tags: ["performance", "indexing"]
+  enabled: true
+
+- id: "select_star"
+  name: "SELECT * Usage"
+  language: "sql"
+  severity: "major"
+  description: "Selecting all columns wastes bandwidth and breaks when schema changes"
+  detection_method:
+    type: "regex"
+    pattern: "SELECT\\s+\\*\\s+FROM"
+  fix_suggestion: "Select only the columns you actually need"
+  source_url: "https://hackernoon.com/an-overview-of-sql-antipatterns"
+  claude_code_fixable: true
+  examples:
+    - bad: "SELECT * FROM users;"
+      good: "SELECT id, name, email FROM users;"
+      explanation: "Explicit column selection is more efficient and maintainable"
+  tags: ["performance", "maintainability"]
+  enabled: true
+
+- id: "no_where_clause"
+  name: "Missing WHERE Clause in UPDATE/DELETE"
+  language: "sql"
+  severity: "critical"
+  description: "UPDATE or DELETE without WHERE clause affects all rows"
+  detection_method:
+    type: "custom"
+    pattern: "detect UPDATE/DELETE statements without WHERE clause"
+  fix_suggestion: "Always include WHERE clause to limit affected rows"
+  source_url: "https://sonra.io/mastering-sql-how-to-detect-and-avoid-34-common-sql-antipatterns/"
+  claude_code_fixable: false
+  examples:
+    - bad: "DELETE FROM users;"
+      good: "DELETE FROM users WHERE status = 'inactive';"
+      explanation: "WHERE clause prevents accidental data loss"
+  tags: ["safety", "data-integrity"]
+  enabled: true
+
+- id: "inefficient_like_patterns"
+  name: "Inefficient LIKE Patterns"
+  language: "sql"
+  severity: "major"
+  description: "LIKE patterns starting with % prevent index usage"
+  detection_method:
+    type: "regex"
+    pattern: "LIKE\\s+['\"]%.*['\"]"
+  fix_suggestion: "Use full-text search or redesign query to avoid leading wildcards"
+  source_url: "https://sonra.io/mastering-sql-how-to-detect-and-avoid-34-common-sql-antipatterns/"
+  claude_code_fixable: false
+  examples:
+    - bad: "SELECT * FROM products WHERE name LIKE '%phone%';"
+      good: "SELECT * FROM products WHERE name LIKE 'phone%';"
+      explanation: "Trailing wildcards can use indexes more effectively"
+  tags: ["performance", "indexing"]
+  enabled: true
+
+- id: "implicit_type_conversion"
+  name: "Implicit Type Conversion"
+  language: "sql"
+  severity: "major"
+  description: "Comparing different data types forces expensive conversions"
+  detection_method:
+    type: "regex"
+    pattern: "WHERE\\s+\\w+\\s*=\\s*['\"]\\d+['\"]"
+  fix_suggestion: "Use proper data types in comparisons to avoid conversions"
+  source_url: "https://sonra.io/mastering-sql-how-to-detect-and-avoid-34-common-sql-antipatterns/"
+  claude_code_fixable: true
+  examples:
+    - bad: "WHERE user_id = '123'"
+      good: "WHERE user_id = 123"
+      explanation: "Proper type matching avoids expensive conversions"
+  tags: ["performance", "types"]
+  enabled: true
+
+- id: "cartesian_product"
+  name: "Accidental Cartesian Product"
+  language: "sql"
+  severity: "critical"
+  description: "Missing JOIN conditions create expensive cartesian products"
+  detection_method:
+    type: "regex"
+    pattern: "FROM\\s+\\w+\\s*,\\s*\\w+"
+  fix_suggestion: "Add proper JOIN conditions to avoid cartesian products"
+  source_url: "https://sonra.io/mastering-sql-how-to-detect-and-avoid-34-common-sql-antipatterns/"
+  claude_code_fixable: false
+  examples:
+    - bad: "SELECT * FROM users, orders;"
+      good: "SELECT * FROM users JOIN orders ON users.id = orders.user_id;"
+      explanation: "Explicit JOINs prevent accidental cartesian products"
+  tags: ["performance", "correctness"]
+  enabled: true

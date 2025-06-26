@@ -1,0 +1,238 @@
+# Elixir Anti-Pattern Rules
+# Source: https://hexdocs.pm/elixir/main/code-anti-patterns.html
+
+- id: "dynamic_atom_creation"
+  name: "Dynamic Atom Creation"
+  language: "elixir"
+  severity: "critical"
+  description: "Creating atoms from uncontrolled input can exhaust memory as atoms are never garbage collected"
+  detection_method:
+    type: "regex"
+    pattern: "String\\.to_atom\\s*\\("
+  fix_suggestion: "Replace String.to_atom(input) with String.to_existing_atom(input) or use explicit atom mapping"
+  source_url: "https://hexdocs.pm/elixir/main/code-anti-patterns.html#dynamic-atom-creation"
+  claude_code_fixable: true
+  examples:
+    - bad: "String.to_atom(user_input)"
+      good: "String.to_existing_atom(user_input)"
+      explanation: "Only converts if atom already exists, preventing memory exhaustion"
+  tags: ["security", "memory"]
+  enabled: true
+
+- id: "long_parameter_list"
+  name: "Long Parameter List"
+  language: "elixir"
+  severity: "major"
+  description: "Functions with too many parameters become confusing and error-prone"
+  detection_method:
+    type: "regex"
+    pattern: "def\\s+\\w+\\s*\\([^)]*,[^)]*,[^)]*,[^)]*,[^)]"
+  fix_suggestion: "Group related parameters into structs or maps"
+  source_url: "https://hexdocs.pm/elixir/main/code-anti-patterns.html#long-parameter-list"
+  claude_code_fixable: true
+  examples:
+    - bad: "def loan(user_name, email, password, alias, book_title, book_ed)"
+      good: "def loan(%{name: name, email: email} = user, %{title: title, ed: ed} = book)"
+      explanation: "Grouping related parameters improves clarity and reduces errors"
+  tags: ["maintainability"]
+  enabled: true
+
+- id: "comments_overuse"
+  name: "Comments Overuse"
+  language: "elixir"
+  severity: "warning"
+  description: "Excessive comments often indicate unclear code that should be refactored instead"
+  detection_method:
+    type: "ratio"
+    pattern: "^\\s*#"
+    threshold: 0.3
+  fix_suggestion: "Refactor code to be self-documenting, use meaningful names, and reduce complex logic"
+  source_url: "https://hexdocs.pm/elixir/main/code-anti-patterns.html#comments-overuse"
+  claude_code_fixable: false
+  examples:
+    - bad: "# Check if user exists\n# and has permission\nif user && user.permission"
+      good: "if user_has_permission?(user)"
+      explanation: "Self-documenting function names eliminate need for comments"
+  tags: ["maintainability", "readability"]
+  enabled: true
+
+- id: "sql_injection_ecto"
+  name: "SQL Injection in Ecto"
+  language: "elixir"
+  severity: "critical"
+  description: "Using string interpolation in Ecto queries opens SQL injection vulnerabilities"
+  detection_method:
+    type: "regex"
+    pattern: "from\\s*\\([^)]*\\)\\s*,\\s*where:[^,]*\\\".*#\\{.*\\}.*\\\""
+  fix_suggestion: "Use parameterized queries with ? or named parameters"
+  source_url: "https://hexdocs.pm/elixir/main/code-anti-patterns.html#ecto-sql-injection"
+  claude_code_fixable: true
+  examples:
+    - bad: "from(u in User, where: \"name = '#{name}'\")"
+      good: "from(u in User, where: u.name == ^name)"
+      explanation: "Parameterized queries prevent SQL injection attacks"
+  tags: ["security", "database"]
+  enabled: true
+
+- id: "namespace_trespassing"
+  name: "Namespace Trespassing"
+  language: "elixir"
+  severity: "major"
+  description: "Accessing private functions or internal modules violates encapsulation"
+  detection_method:
+    type: "regex"
+    pattern: "\\w+\\.__\\w+__"
+  fix_suggestion: "Use public APIs or refactor to expose needed functionality properly"
+  source_url: "https://hexdocs.pm/elixir/main/code-anti-patterns.html#namespace-trespassing"
+  claude_code_fixable: false
+  examples:
+    - bad: "MyModule.__private_function__(data)"
+      good: "MyModule.public_function(data)"
+      explanation: "Use public APIs to maintain proper encapsulation"
+  tags: ["architecture", "encapsulation"]
+  enabled: true
+
+- id: "non_assertive_map_access"
+  name: "Non-Assertive Map Access"
+  language: "elixir"
+  severity: "warning"
+  description: "Using Map.get/2 when key should always exist hides potential bugs"
+  detection_method:
+    type: "regex"
+    pattern: "Map\\.get\\(\\w+,\\s*:\\w+\\)"
+  fix_suggestion: "Use pattern matching or Map.fetch!/2 for required keys"
+  source_url: "https://hexdocs.pm/elixir/main/code-anti-patterns.html#non-assertive-map-access"
+  claude_code_fixable: true
+  examples:
+    - bad: "name = Map.get(user, :name)"
+      good: "%{name: name} = user"
+      explanation: "Pattern matching fails fast if key is missing, revealing bugs"
+  tags: ["reliability", "error-handling"]
+  enabled: true
+
+- id: "mass_assignment_vulnerability"
+  name: "Mass Assignment Vulnerability"
+  language: "elixir"
+  severity: "critical"
+  description: "Changesets accepting all parameters allow users to modify protected fields"
+  detection_method:
+    type: "regex"
+    pattern: "changeset\\s*\\(.*params\\s*\\)"
+  fix_suggestion: "Create specific changesets for different actions with explicit field lists"
+  source_url: "https://curiosum.com/blog/elixir-anti-patterns"
+  claude_code_fixable: true
+  examples:
+    - bad: "def changeset(user, params) do\n  user |> cast(params, [:name, :email, :admin])\nend"
+      good: "def user_changeset(user, params) do\n  user |> cast(params, [:name, :email])\nend\n\ndef admin_changeset(user, params) do\n  user |> cast(params, [:name, :email, :admin])\nend"
+      explanation: "Separate changesets prevent unauthorized field modification"
+  tags: ["security", "database"]
+  enabled: true
+
+- id: "structs_32_plus_fields"
+  name: "Structs with 32+ Fields"
+  language: "elixir"
+  severity: "major"
+  description: "Structs with 32+ fields change VM internal representation, causing memory bloating"
+  detection_method:
+    type: "line_count"
+    threshold: 32
+    pattern: "defstruct\\s*\\[([^\\]]*\\n){32,}"
+  fix_suggestion: "Split into smaller structs or nest optional fields into metadata"
+  source_url: "https://hexdocs.pm/elixir/main/code-anti-patterns.html#structs-with-32-fields-or-more"
+  claude_code_fixable: true
+  examples:
+    - bad: "defstruct [\n  :field1, :field2, ..., :field35\n]"
+      good: "defstruct [\n  :core_field1, :core_field2,\n  :metadata  # nested struct or map\n]"
+      explanation: "Smaller structs maintain VM optimization and improve organization"
+  tags: ["performance", "memory"]
+  enabled: true
+
+- id: "non_assertive_pattern_matching"
+  name: "Non-assertive Pattern Matching"
+  language: "elixir"
+  severity: "major"
+  description: "Defensive code that returns incorrect values instead of using assertive pattern matching"
+  detection_method:
+    type: "custom"
+    pattern: "check for functions that always return without pattern matching on inputs"
+  fix_suggestion: "Use pattern matching to handle expected cases and let unexpected ones crash"
+  source_url: "https://hexdocs.pm/elixir/main/code-anti-patterns.html#non-assertive-pattern-matching"
+  claude_code_fixable: true
+  examples:
+    - bad: "def get_value(string, key) do\n  parts = String.split(string, \"&\")\n  Enum.find_value(parts, fn pair ->\n    key_value = String.split(pair, \"=\")\n    Enum.at(key_value, 0) == key && Enum.at(key_value, 1)\n  end)\nend"
+      good: "def get_value(string, key) do\n  parts = String.split(string, \"&\")\n  Enum.find_value(parts, fn pair ->\n    [k, v] = String.split(pair, \"=\")  # pattern matching\n    k == key && v\n  end)\nend"
+      explanation: "Pattern matching crashes on unexpected input, revealing problems early"
+  tags: ["reliability", "error-handling"]
+  enabled: true
+
+- id: "ecto_schemas_in_migrations"
+  name: "Ecto Schemas in Migrations"
+  language: "elixir"
+  severity: "major"
+  description: "Using application schemas in migrations breaks when schemas change"
+  detection_method:
+    type: "regex"
+    pattern: "defmodule.*Migration.*do.*\\n.*alias.*\\n.*from\\(\\w+\\."
+  fix_suggestion: "Use raw SQL or define schemas within migration file"
+  source_url: "https://curiosum.com/blog/elixir-anti-patterns"
+  claude_code_fixable: false
+  examples:
+    - bad: "defmodule AddFieldMigration do\n  alias MyApp.User\n  def change do\n    from(u in User, select: u.id)\n  end\nend"
+      good: "defmodule AddFieldMigration do\n  def change do\n    execute(\"SELECT id FROM users\")\n  end\nend"
+      explanation: "Raw SQL in migrations remains stable regardless of schema changes"
+  tags: ["database", "migration"]
+  enabled: true
+
+- id: "complex_else_in_with"
+  name: "Complex Else Clauses in With"
+  language: "elixir"
+  severity: "warning"
+  description: "With expressions that flatten all error clauses into single complex else block"
+  detection_method:
+    type: "regex"
+    pattern: "with\\s+.*<-.*\\n.*<-.*\\n.*do\\n.*else\\n(.*\\n){3,}"
+  fix_suggestion: "Extract error handling to private functions with normalized return types"
+  source_url: "https://hexdocs.pm/elixir/main/code-anti-patterns.html#complex-else-clauses-in-with"
+  claude_code_fixable: true
+  examples:
+    - bad: "def open_file(path) do\n  with {:ok, content} <- File.read(path),\n       {:ok, decoded} <- Base.decode64(content) do\n    {:ok, String.trim(decoded)}\n  else\n    {:error, _} -> {:error, :badfile}\n    :error -> {:error, :badencoding}\n  end\nend"
+      good: "def open_file(path) do\n  with {:ok, content} <- file_read(path),\n       {:ok, decoded} <- base_decode64(content) do\n    {:ok, String.trim(decoded)}\n  end\nend\n\ndefp file_read(path) do\n  case File.read(path) do\n    {:ok, content} -> {:ok, content}\n    {:error, _} -> {:error, :badfile}\n  end\nend"
+      explanation: "Extracting error handling improves readability and maintainability"
+  tags: ["readability", "error-handling"]
+  enabled: true
+
+- id: "complex_extractions_in_clauses"
+  name: "Complex Extractions in Clauses"
+  language: "elixir"
+  severity: "warning"
+  description: "Multi-clause functions extracting many variables make it hard to distinguish pattern/guard vs body usage"
+  detection_method:
+    type: "custom"
+    pattern: "detect functions with multiple clauses extracting >3 variables each"
+  fix_suggestion: "Extract only pattern/guard variables in signature, use pattern matching in body"
+  source_url: "https://hexdocs.pm/elixir/main/code-anti-patterns.html#complex-extractions-in-clauses"
+  claude_code_fixable: true
+  examples:
+    - bad: "def drive(%User{name: name, age: age}) when age >= 18 do\n  \"#{name} can drive\"\nend\ndef drive(%User{name: name, age: age}) when age < 18 do\n  \"#{name} cannot drive\"\nend"
+      good: "def drive(%User{age: age} = user) when age >= 18 do\n  %User{name: name} = user\n  \"#{name} can drive\"\nend\ndef drive(%User{age: age} = user) when age < 18 do\n  %User{name: name} = user\n  \"#{name} cannot drive\"\nend"
+      explanation: "Clear separation between guard variables and body variables"
+  tags: ["readability", "maintainability"]
+  enabled: true
+
+- id: "non_assertive_truthiness"
+  name: "Non-assertive Truthiness"
+  language: "elixir"
+  severity: "warning"
+  description: "Using &&, ||, ! with boolean operands instead of and, or, not"
+  detection_method:
+    type: "regex"
+    pattern: "is_\\w+\\([^)]+\\)\\s*(&&|\\|\\||!)\\s*is_\\w+\\([^)]+\\)"
+  fix_suggestion: "Use and, or, not operators when all operands are booleans"
+  source_url: "https://hexdocs.pm/elixir/main/code-anti-patterns.html#non-assertive-truthiness"
+  claude_code_fixable: true
+  examples:
+    - bad: "if is_binary(name) && is_integer(age) do"
+      good: "if is_binary(name) and is_integer(age) do"
+      explanation: "Boolean operators are more explicit and work better with Erlang interop"
+  tags: ["style", "readability"]
+  enabled: true
