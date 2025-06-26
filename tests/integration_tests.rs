@@ -300,7 +300,6 @@ async fn test_git_integration_branch_detection() -> Result<()> {
     
     setup_test_git_repo_with_branch(repo_path)?;
     
-    let original_dir = env::current_dir()?;
     env::set_current_dir(repo_path)?;
     
     // Test GitIntegration creation and branch detection
