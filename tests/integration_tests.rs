@@ -421,9 +421,9 @@ function test() {
 // Helper functions
 
 fn setup_test_git_repo(repo_path: &std::path::Path) -> Result<()> {
-    // Initialize git repo
+    // Initialize git repo with explicit main branch
     Command::new("git")
-        .args(&["init"])
+        .args(&["init", "-b", "main"])
         .current_dir(repo_path)
         .output()?;
     
@@ -458,6 +458,12 @@ fn setup_test_git_repo(repo_path: &std::path::Path) -> Result<()> {
 fn setup_test_git_repo_with_branch(repo_path: &std::path::Path) -> Result<()> {
     // Setup basic repo
     setup_test_git_repo(repo_path)?;
+    
+    // Ensure we're on the main branch before creating feature branch
+    Command::new("git")
+        .args(&["checkout", "-B", "main"])
+        .current_dir(repo_path)
+        .output()?;
     
     // Create and switch to a feature branch
     Command::new("git")
