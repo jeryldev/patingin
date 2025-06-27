@@ -107,10 +107,7 @@ pub async fn run() -> Result<()> {
             }
 
             // Check git status
-            if let Ok(output) = Command::new("git")
-                .args(["status", "--porcelain"])
-                .output()
-            {
+            if let Ok(output) = Command::new("git").args(["status", "--porcelain"]).output() {
                 let status = String::from_utf8_lossy(&output.stdout);
                 if status.trim().is_empty() {
                     println!("    {} Working directory clean", "✓".green());

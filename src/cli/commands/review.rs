@@ -260,7 +260,10 @@ fn output_human_readable_results(
     }
 
     // Group violations by file
-    let mut violations_by_file: std::collections::HashMap<String, Vec<&crate::core::ReviewViolation>> = std::collections::HashMap::new();
+    let mut violations_by_file: std::collections::HashMap<
+        String,
+        Vec<&crate::core::ReviewViolation>,
+    > = std::collections::HashMap::new();
     for violation in violations {
         violations_by_file
             .entry(violation.file_path.clone())

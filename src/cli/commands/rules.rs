@@ -302,7 +302,11 @@ fn handle_add_rule(args: &RulesArgs) -> Result<()> {
         .filter(|c| c.is_alphanumeric() || *c == '_')
         .collect::<String>();
 
-    let pattern = description.split_whitespace().last().unwrap_or("TODO").to_string();
+    let pattern = description
+        .split_whitespace()
+        .last()
+        .unwrap_or("TODO")
+        .to_string();
 
     let custom_rule = CustomRule {
         id: rule_id.clone(),
