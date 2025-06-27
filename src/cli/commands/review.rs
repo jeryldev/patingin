@@ -260,11 +260,11 @@ fn output_human_readable_results(
     }
 
     // Group violations by file
-    let mut violations_by_file = std::collections::HashMap::new();
+    let mut violations_by_file: std::collections::HashMap<String, Vec<&crate::core::ReviewViolation>> = std::collections::HashMap::new();
     for violation in violations {
         violations_by_file
             .entry(violation.file_path.clone())
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(violation);
     }
 
@@ -501,7 +501,7 @@ fn create_claude_query(violations: &[crate::core::ReviewViolation]) -> Result<St
     for violation in violations {
         files_with_violations
             .entry(violation.file_path.clone())
-            .or_insert_with(Vec::new)
+            .or_default()
             .push(violation);
     }
 

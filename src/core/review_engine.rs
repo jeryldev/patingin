@@ -47,6 +47,12 @@ pub struct ReviewEngine {
     registry: PatternRegistry,
 }
 
+impl Default for ReviewEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ReviewEngine {
     pub fn new() -> Self {
         let mut registry = PatternRegistry::new();

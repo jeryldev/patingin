@@ -302,10 +302,7 @@ fn handle_add_rule(args: &RulesArgs) -> Result<()> {
         .filter(|c| c.is_alphanumeric() || *c == '_')
         .collect::<String>();
 
-    let pattern = format!(
-        r"{}",
-        description.split_whitespace().last().unwrap_or("TODO")
-    );
+    let pattern = description.split_whitespace().last().unwrap_or("TODO").to_string();
 
     let custom_rule = CustomRule {
         id: rule_id.clone(),
@@ -411,7 +408,7 @@ fn show_custom_rules(
         }
 
         // Show all rules
-        for (_i, pattern) in patterns.iter().enumerate() {
+        for pattern in patterns.iter() {
             let severity_icon = match pattern.severity {
                 Severity::Critical => "🔴",
                 Severity::Major => "🟡",
@@ -526,7 +523,7 @@ fn show_organized_rules(
             }
 
             // Show all rules for this language
-            for (_i, rule) in lang_rules.iter().enumerate() {
+            for rule in lang_rules.iter() {
                 let severity_str = match rule.severity {
                     Severity::Critical => "CRITICAL".red(),
                     Severity::Major => "MAJOR".yellow(),

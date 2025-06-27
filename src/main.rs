@@ -7,7 +7,6 @@ mod git;
 use anyhow::Result;
 use clap::Parser;
 use tracing::info;
-use tracing_subscriber;
 
 use crate::cli::{Cli, Commands};
 

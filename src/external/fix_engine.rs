@@ -37,6 +37,12 @@ pub struct FixEngine {
     claude_integration: ClaudeCodeIntegration,
 }
 
+impl Default for FixEngine {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl FixEngine {
     pub fn new() -> Self {
         Self {
@@ -101,7 +107,7 @@ impl FixEngine {
                             // Queue the fix for batch application
                             files_to_modify
                                 .entry(violation.file_path.clone())
-                                .or_insert_with(Vec::new)
+                                .or_default()
                                 .push((violation.line_number, fixed_code.clone()));
                         }
 
@@ -280,7 +286,7 @@ impl FixEngine {
         if result.fixed_violations > 0 {
             println!("  • Review the changes and test your code");
             println!("  • Run {} to verify fixes", "patingin review".cyan());
-            if result.files_modified.len() > 0 {
+            if !result.files_modified.is_empty() {
                 println!(
                     "  • Commit the changes: {}",
                     "git add . && git commit -m \"Apply patingin fixes\"".cyan()
@@ -310,7 +316,7 @@ impl FixEngine {
         for violation in violations {
             violations_by_file
                 .entry(violation.file_path.clone())
-                .or_insert_with(Vec::new)
+                .or_default()
                 .push(violation);
         }
 

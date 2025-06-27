@@ -130,9 +130,9 @@ impl GitDiffParser {
                     file.removed_lines.push(changed_line);
                 }
                 // Don't increment line number for removed lines
-            } else if line.starts_with(' ') {
+            } else if let Some(stripped) = line.strip_prefix(' ') {
                 // Context line
-                context_lines.push(line[1..].to_string());
+                context_lines.push(stripped.to_string());
                 // Keep only last 3 context lines
                 if context_lines.len() > 3 {
                     context_lines.remove(0);
@@ -202,8 +202,8 @@ impl GitDiffParser {
         let parts: Vec<&str> = diff_line.split_whitespace().collect();
         if parts.len() >= 4 {
             let a_path = parts[2];
-            if a_path.starts_with("a/") {
-                return Some(a_path[2..].to_string());
+            if let Some(stripped) = a_path.strip_prefix("a/") {
+                return Some(stripped.to_string());
             }
         }
         None

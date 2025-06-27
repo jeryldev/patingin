@@ -271,10 +271,8 @@ impl ProjectDetector {
                         if let Some(extension) = entry.path().extension() {
                             if let Some(ext_str) = extension.to_str() {
                                 for (extensions, language) in &extension_map {
-                                    if extensions.contains(&ext_str.to_lowercase().as_str()) {
-                                        if !languages.contains(language) {
-                                            languages.push(language.clone());
-                                        }
+                                    if extensions.contains(&ext_str.to_lowercase().as_str()) && !languages.contains(language) {
+                                        languages.push(language.clone());
                                     }
                                 }
                             }

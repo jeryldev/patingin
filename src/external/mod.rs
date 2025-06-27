@@ -51,7 +51,7 @@ impl ClaudeCodeIntegration {
 
     fn get_version(command: &str) -> Option<String> {
         Command::new(command)
-            .args(&["--version"])
+            .args(["--version"])
             .output()
             .ok()
             .and_then(|output| {
@@ -120,7 +120,7 @@ Please provide ONLY the fixed code without explanations. Return the corrected li
 
         // Execute Claude Code with the prompt file
         let output = Command::new(&self.command)
-            .args(&["--file", temp_file.path().to_str().unwrap()])
+            .args(["--file", temp_file.path().to_str().unwrap()])
             .output()?;
 
         if !output.status.success() {
@@ -212,7 +212,7 @@ Please provide ONLY the fixed code without explanations. Return the corrected li
             confidence -= 0.3;
         }
 
-        confidence.min(1.0).max(0.0)
+        confidence.clamp(0.0, 1.0)
     }
 
     pub fn apply_fixes_to_file(&self, file_path: &str, fixes: &[(usize, String)]) -> Result<()> {
@@ -323,6 +323,12 @@ Please provide ONLY the fixed code without explanations. Return the corrected li
 #[allow(dead_code)]
 pub struct GitHubIntegration {
     token: Option<String>,
+}
+
+impl Default for GitHubIntegration {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl GitHubIntegration {

@@ -36,6 +36,12 @@ pub struct CustomRulesManager {
     config_path: String,
 }
 
+impl Default for CustomRulesManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CustomRulesManager {
     pub fn new() -> Self {
         let home_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());

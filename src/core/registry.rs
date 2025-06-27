@@ -12,6 +12,12 @@ pub struct PatternRegistry {
     pub compiled_patterns: HashMap<String, Regex>,
 }
 
+impl Default for PatternRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PatternRegistry {
     pub fn new() -> Self {
         Self {

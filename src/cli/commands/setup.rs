@@ -69,7 +69,7 @@ pub async fn run() -> Result<()> {
     // Git installation check
     total_checks += 1;
     if which("git").is_ok() {
-        if let Ok(output) = Command::new("git").args(&["--version"]).output() {
+        if let Ok(output) = Command::new("git").args(["--version"]).output() {
             let version = String::from_utf8_lossy(&output.stdout).trim().to_string();
             println!("  {} Git installed: {}", "✓".green(), version.dimmed());
             checks_passed += 1;
@@ -92,7 +92,7 @@ pub async fn run() -> Result<()> {
             }
 
             // Check for remotes
-            if let Ok(output) = Command::new("git").args(&["remote", "-v"]).output() {
+            if let Ok(output) = Command::new("git").args(["remote", "-v"]).output() {
                 let remotes = String::from_utf8_lossy(&output.stdout);
                 if !remotes.trim().is_empty() {
                     let remote_lines: Vec<&str> = remotes.lines().take(2).collect();
@@ -108,7 +108,7 @@ pub async fn run() -> Result<()> {
 
             // Check git status
             if let Ok(output) = Command::new("git")
-                .args(&["status", "--porcelain"])
+                .args(["status", "--porcelain"])
                 .output()
             {
                 let status = String::from_utf8_lossy(&output.stdout);
@@ -136,11 +136,7 @@ pub async fn run() -> Result<()> {
     total_checks += 1;
     let integration = ClaudeCodeIntegration::detect();
     if integration.available {
-        let version_display = integration
-            .version
-            .as_ref()
-            .map(|v| v.as_str())
-            .unwrap_or("unknown version");
+        let version_display = integration.version.as_deref().unwrap_or("unknown version");
         println!(
             "  {} Claude Code CLI: {}",
             "✓".green(),
