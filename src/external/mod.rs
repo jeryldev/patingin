@@ -42,25 +42,17 @@ impl ClaudeCodeIntegration {
             (false, "".to_string(), None)
         };
 
-        Self {
-            available,
-            version,
-            command,
-        }
+        Self { available, version, command }
     }
 
     fn get_version(command: &str) -> Option<String> {
-        Command::new(command)
-            .args(["--version"])
-            .output()
-            .ok()
-            .and_then(|output| {
-                if output.status.success() {
-                    Some(String::from_utf8_lossy(&output.stdout).trim().to_string())
-                } else {
-                    None
-                }
-            })
+        Command::new(command).args(["--version"]).output().ok().and_then(|output| {
+            if output.status.success() {
+                Some(String::from_utf8_lossy(&output.stdout).trim().to_string())
+            } else {
+                None
+            }
+        })
     }
 
     pub fn generate_fix(&self, request: &FixRequest) -> Result<FixResult> {

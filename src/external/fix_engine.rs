@@ -45,9 +45,7 @@ impl Default for FixEngine {
 
 impl FixEngine {
     pub fn new() -> Self {
-        Self {
-            claude_integration: ClaudeCodeIntegration::detect(),
-        }
+        Self { claude_integration: ClaudeCodeIntegration::detect() }
     }
 
     pub async fn process_batch_fixes(&self, request: &BatchFixRequest) -> Result<BatchFixResult> {
@@ -63,10 +61,7 @@ impl FixEngine {
             });
         }
 
-        println!(
-            "🤖 Processing {} violations with Claude Code...",
-            request.violations.len()
-        );
+        println!("🤖 Processing {} violations with Claude Code...", request.violations.len());
 
         let mut fix_details = Vec::new();
         let mut files_to_modify: HashMap<String, Vec<(usize, String)>> = HashMap::new();
@@ -111,15 +106,7 @@ impl FixEngine {
                                 .push((violation.line_number, fixed_code.clone()));
                         }
 
-                        println!(
-                            "{}",
-                            if applied {
-                                "✅ Fixed"
-                            } else {
-                                "⏭️ Skipped"
-                            }
-                            .green()
-                        );
+                        println!("{}", if applied { "✅ Fixed" } else { "⏭️ Skipped" }.green());
                     } else {
                         println!("{}", "❌ Invalid fix".red());
                     }
@@ -127,11 +114,7 @@ impl FixEngine {
                     println!("{}", "❌ No fix generated".red());
                 }
             } else {
-                let reason = if !fix_result.success {
-                    "Failed"
-                } else {
-                    "Low confidence"
-                };
+                let reason = if !fix_result.success { "Failed" } else { "Low confidence" };
                 println!("{} {}", "⚠️".yellow(), reason.yellow());
             }
 
@@ -148,10 +131,7 @@ impl FixEngine {
         let mut files_modified = Vec::new();
         if !request.dry_run {
             for (file_path, fixes) in files_to_modify {
-                if let Err(e) = self
-                    .claude_integration
-                    .apply_fixes_to_file(&file_path, &fixes)
-                {
+                if let Err(e) = self.claude_integration.apply_fixes_to_file(&file_path, &fixes) {
                     eprintln!("❌ Failed to apply fixes to {file_path}: {e}");
                 } else {
                     files_modified.push(file_path);
@@ -226,21 +206,9 @@ impl FixEngine {
         println!("══════════════════════════════════════");
 
         println!("Total violations: {}", result.total_violations);
-        println!(
-            "{} Fixed: {}",
-            "✅".green(),
-            result.fixed_violations.to_string().green()
-        );
-        println!(
-            "{} Failed: {}",
-            "❌".red(),
-            result.failed_violations.to_string().red()
-        );
-        println!(
-            "{} Skipped: {}",
-            "⏭️".yellow(),
-            result.skipped_violations.to_string().yellow()
-        );
+        println!("{} Fixed: {}", "✅".green(), result.fixed_violations.to_string().green());
+        println!("{} Failed: {}", "❌".red(), result.failed_violations.to_string().red());
+        println!("{} Skipped: {}", "⏭️".yellow(), result.skipped_violations.to_string().yellow());
 
         if !result.files_modified.is_empty() {
             println!("\n{} Files modified:", "📝".cyan());
@@ -250,11 +218,8 @@ impl FixEngine {
         }
 
         // Show detailed results for failed or skipped fixes
-        let problematic_fixes: Vec<_> = result
-            .fix_details
-            .iter()
-            .filter(|d| !d.applied || !d.fix_result.success)
-            .collect();
+        let problematic_fixes: Vec<_> =
+            result.fix_details.iter().filter(|d| !d.applied || !d.fix_result.success).collect();
 
         if !problematic_fixes.is_empty() {
             println!("\n{} Detailed Results:", "📊".cyan());
@@ -314,10 +279,7 @@ impl FixEngine {
         // Group violations by file
         let mut violations_by_file: HashMap<String, Vec<&ReviewViolation>> = HashMap::new();
         for violation in violations {
-            violations_by_file
-                .entry(violation.file_path.clone())
-                .or_default()
-                .push(violation);
+            violations_by_file.entry(violation.file_path.clone()).or_default().push(violation);
         }
 
         println!(
@@ -356,10 +318,7 @@ impl FixEngine {
             "  • {} - Apply all fixes automatically",
             "patingin review --auto-fix --no-confirm".cyan()
         );
-        println!(
-            "  • {} - Show what would be fixed (dry run)",
-            "patingin review --suggest".cyan()
-        );
+        println!("  • {} - Show what would be fixed (dry run)", "patingin review --suggest".cyan());
 
         Ok(())
     }
@@ -377,9 +336,7 @@ mod fix_engine_tests {
             language: Language::Elixir,
             severity: Severity::Major,
             description: "Test description".to_string(),
-            detection_method: DetectionMethod::Regex {
-                pattern: "test".to_string(),
-            },
+            detection_method: DetectionMethod::Regex { pattern: "test".to_string() },
             fix_suggestion: "Fix this test issue".to_string(),
             source_url: None,
             claude_code_fixable: true,
@@ -421,9 +378,7 @@ mod fix_engine_tests {
         assert_eq!(fix_request.line_number, 42);
         assert_eq!(fix_request.original_code, "String.to_atom(user_input)");
         assert_eq!(fix_request.language, "elixir");
-        assert!(fix_request
-            .violation_description
-            .contains("Test description"));
+        assert!(fix_request.violation_description.contains("Test description"));
     }
 
     #[tokio::test]

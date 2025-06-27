@@ -175,10 +175,7 @@ fn test_git_diff_graceful_degradation() {
 
 fn setup_git_repo_with_commit(repo_path: &std::path::Path) -> Result<()> {
     // Initialize git repo
-    Command::new("git")
-        .args(&["init"])
-        .current_dir(repo_path)
-        .output()?;
+    Command::new("git").args(&["init"]).current_dir(repo_path).output()?;
 
     // Configure git user
     Command::new("git")
@@ -195,10 +192,7 @@ fn setup_git_repo_with_commit(repo_path: &std::path::Path) -> Result<()> {
     let readme = repo_path.join("README.md");
     std::fs::write(readme, "# Test Repository\n")?;
 
-    Command::new("git")
-        .args(&["add", "README.md"])
-        .current_dir(repo_path)
-        .output()?;
+    Command::new("git").args(&["add", "README.md"]).current_dir(repo_path).output()?;
 
     Command::new("git")
         .args(&["commit", "-m", "Initial commit"])

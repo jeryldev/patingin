@@ -12,18 +12,9 @@ fn test_actual_command_help_matches_docs() {
     let help_text = String::from_utf8_lossy(&output.stdout);
 
     // Verify core commands exist
-    assert!(
-        help_text.contains("rules"),
-        "Missing 'rules' command in help"
-    );
-    assert!(
-        help_text.contains("review"),
-        "Missing 'review' command in help"
-    );
-    assert!(
-        help_text.contains("setup"),
-        "Missing 'setup' command in help"
-    );
+    assert!(help_text.contains("rules"), "Missing 'rules' command in help");
+    assert!(help_text.contains("review"), "Missing 'review' command in help");
+    assert!(help_text.contains("setup"), "Missing 'setup' command in help");
 }
 
 #[test]
@@ -37,19 +28,13 @@ fn test_review_command_options() {
 
     // Verify documented flags exist
     assert!(help_text.contains("--staged"), "Missing --staged flag");
-    assert!(
-        help_text.contains("--uncommitted"),
-        "Missing --uncommitted flag"
-    );
+    assert!(help_text.contains("--uncommitted"), "Missing --uncommitted flag");
     assert!(help_text.contains("--since"), "Missing --since flag");
     assert!(help_text.contains("--severity"), "Missing --severity flag");
     assert!(help_text.contains("--language"), "Missing --language flag");
     assert!(help_text.contains("--json"), "Missing --json flag");
     assert!(help_text.contains("--auto-fix"), "Missing --auto-fix flag");
-    assert!(
-        help_text.contains("--no-confirm"),
-        "Missing --no-confirm flag"
-    );
+    assert!(help_text.contains("--no-confirm"), "Missing --no-confirm flag");
     assert!(help_text.contains("--suggest"), "Missing --suggest flag");
 }
 
@@ -64,10 +49,7 @@ fn test_rules_command_options() {
 
     // Verify documented flags exist
     assert!(help_text.contains("--elixir"), "Missing --elixir flag");
-    assert!(
-        help_text.contains("--javascript"),
-        "Missing --javascript flag"
-    );
+    assert!(help_text.contains("--javascript"), "Missing --javascript flag");
     assert!(help_text.contains("--search"), "Missing --search flag");
     assert!(help_text.contains("--detail"), "Missing --detail flag");
 }
@@ -106,9 +88,7 @@ fn test_actual_builtin_rules_count() {
 fn test_test_count_matches_docs() {
     // Count actual test functions in the codebase
     let output = Command::new("find")
-        .args(&[
-            "src", "-name", "*.rs", "-exec", "grep", "-c", "fn test_", "{}", ";",
-        ])
+        .args(&["src", "-name", "*.rs", "-exec", "grep", "-c", "fn test_", "{}", ";"])
         .output()
         .expect("Failed to count test functions");
 
@@ -143,9 +123,8 @@ mod claude_code_detection_tests {
         println!("claude command available: {}", claude_available);
 
         // Check npm installation status
-        let npm_check = Command::new("npm")
-            .args(&["list", "-g", "@anthropic-ai/claude-code"])
-            .output();
+        let npm_check =
+            Command::new("npm").args(&["list", "-g", "@anthropic-ai/claude-code"]).output();
 
         if let Ok(output) = npm_check {
             let output_str = String::from_utf8_lossy(&output.stdout);
@@ -183,11 +162,7 @@ fn test_supported_languages_match_implementation() {
 
         // Verify file has actual rules
         let content = fs::read_to_string(&path).expect("Failed to read rule file");
-        assert!(
-            content.contains("id:"),
-            "Rule file {} appears empty",
-            lang_file
-        );
+        assert!(content.contains("id:"), "Rule file {} appears empty", lang_file);
     }
 }
 

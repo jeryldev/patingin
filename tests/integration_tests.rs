@@ -27,10 +27,7 @@ impl DirectoryGuard {
         let lock = TEST_MUTEX.lock().unwrap();
         let original_dir = env::current_dir()?;
 
-        Ok(DirectoryGuard {
-            _lock: lock,
-            original_dir,
-        })
+        Ok(DirectoryGuard { _lock: lock, original_dir })
     }
 }
 
@@ -95,10 +92,7 @@ function debugInfo() {
     )?;
 
     // Add and commit the file
-    Command::new("git")
-        .args(&["add", "."])
-        .current_dir(repo_path)
-        .output()?;
+    Command::new("git").args(&["add", "."]).current_dir(repo_path).output()?;
     Command::new("git")
         .args(&["commit", "-m", "Add file with violation"])
         .current_dir(repo_path)
@@ -163,11 +157,7 @@ async fn test_git_diff_branch_vs_commit_real_execution() -> Result<()> {
             }
             DiffScope::SinceCommit(ref reference) if reference == "HEAD~1" => {
                 // Should work when comparing to previous commit
-                assert!(
-                    result.is_ok(),
-                    "Git diff to HEAD~1 should work: {:?}",
-                    scope
-                );
+                assert!(result.is_ok(), "Git diff to HEAD~1 should work: {:?}", scope);
             }
             _ => {
                 // Other scopes might be empty but should not error
@@ -204,10 +194,7 @@ end
 "#,
     )?;
 
-    Command::new("git")
-        .args(&["add", "."])
-        .current_dir(repo_path)
-        .output()?;
+    Command::new("git").args(&["add", "."]).current_dir(repo_path).output()?;
     Command::new("git")
         .args(&["commit", "-m", "Initial clean code"])
         .current_dir(repo_path)
@@ -234,10 +221,7 @@ end
 "#,
     )?;
 
-    Command::new("git")
-        .args(&["add", "."])
-        .current_dir(repo_path)
-        .output()?;
+    Command::new("git").args(&["add", "."]).current_dir(repo_path).output()?;
     Command::new("git")
         .args(&["commit", "-m", "Add violations"])
         .current_dir(repo_path)
@@ -255,40 +239,22 @@ end
     let review_result = review_engine.review_git_diff(&git_diff)?;
 
     // Should detect multiple violations
-    assert!(
-        !review_result.violations.is_empty(),
-        "Should detect violations in the diff"
-    );
+    assert!(!review_result.violations.is_empty(), "Should detect violations in the diff");
 
     // Should detect dynamic atom creation (critical)
-    let atom_violations: Vec<_> = review_result
-        .violations
-        .iter()
-        .filter(|v| v.rule.id == "dynamic_atom_creation")
-        .collect();
-    assert!(
-        !atom_violations.is_empty(),
-        "Should detect String.to_atom violations"
-    );
+    let atom_violations: Vec<_> =
+        review_result.violations.iter().filter(|v| v.rule.id == "dynamic_atom_creation").collect();
+    assert!(!atom_violations.is_empty(), "Should detect String.to_atom violations");
 
     // Should detect long parameter list (major)
-    let param_violations: Vec<_> = review_result
-        .violations
-        .iter()
-        .filter(|v| v.rule.id == "long_parameter_list")
-        .collect();
-    assert!(
-        !param_violations.is_empty(),
-        "Should detect long parameter list violations"
-    );
+    let param_violations: Vec<_> =
+        review_result.violations.iter().filter(|v| v.rule.id == "long_parameter_list").collect();
+    assert!(!param_violations.is_empty(), "Should detect long parameter list violations");
 
     // Verify line numbers are correct
     for violation in &review_result.violations {
         assert!(violation.line_number > 0, "Line numbers should be positive");
-        assert!(
-            !violation.content.is_empty(),
-            "Violation content should not be empty"
-        );
+        assert!(!violation.content.is_empty(), "Violation content should not be empty");
     }
 
     Ok(())
@@ -304,10 +270,7 @@ async fn test_claude_code_detection_scenarios() -> Result<()> {
 
     // Test 2: Setup command handles Claude Code presence/absence gracefully
     let result = setup::run().await;
-    assert!(
-        result.is_ok(),
-        "Setup should handle Claude Code availability gracefully"
-    );
+    assert!(result.is_ok(), "Setup should handle Claude Code availability gracefully");
 
     Ok(())
 }
@@ -383,10 +346,7 @@ end
 "#,
     )?;
 
-    Command::new("git")
-        .args(&["add", "."])
-        .current_dir(repo_path)
-        .output()?;
+    Command::new("git").args(&["add", "."]).current_dir(repo_path).output()?;
     Command::new("git")
         .args(&["commit", "-m", "Add clean code"])
         .current_dir(repo_path)
@@ -408,10 +368,7 @@ end
     };
 
     let result = review::run(review_args).await;
-    assert!(
-        result.is_ok(),
-        "Review should succeed even with no violations"
-    );
+    assert!(result.is_ok(), "Review should succeed even with no violations");
 
     Ok(())
 }
@@ -439,10 +396,7 @@ function test() {
 "#,
     )?;
 
-    Command::new("git")
-        .args(&["add", "."])
-        .current_dir(repo_path)
-        .output()?;
+    Command::new("git").args(&["add", "."]).current_dir(repo_path).output()?;
     Command::new("git")
         .args(&["commit", "-m", "Initial version"])
         .current_dir(repo_path)
@@ -486,10 +440,7 @@ function test() {
 
 fn setup_test_git_repo(repo_path: &std::path::Path) -> Result<()> {
     // Initialize git repo with explicit main branch
-    Command::new("git")
-        .args(&["init", "-b", "main"])
-        .current_dir(repo_path)
-        .output()?;
+    Command::new("git").args(&["init", "-b", "main"]).current_dir(repo_path).output()?;
 
     // Configure git user (required for commits)
     Command::new("git")
@@ -506,10 +457,7 @@ fn setup_test_git_repo(repo_path: &std::path::Path) -> Result<()> {
     let readme = repo_path.join("README.md");
     fs::write(readme, "# Test Repository\n")?;
 
-    Command::new("git")
-        .args(&["add", "README.md"])
-        .current_dir(repo_path)
-        .output()?;
+    Command::new("git").args(&["add", "README.md"]).current_dir(repo_path).output()?;
 
     Command::new("git")
         .args(&["commit", "-m", "Initial commit"])
@@ -524,10 +472,7 @@ fn setup_test_git_repo_with_branch(repo_path: &std::path::Path) -> Result<()> {
     setup_test_git_repo(repo_path)?;
 
     // Ensure we're on the main branch before creating feature branch
-    Command::new("git")
-        .args(&["checkout", "-B", "main"])
-        .current_dir(repo_path)
-        .output()?;
+    Command::new("git").args(&["checkout", "-B", "main"]).current_dir(repo_path).output()?;
 
     // Create and switch to a feature branch
     Command::new("git")
@@ -539,10 +484,7 @@ fn setup_test_git_repo_with_branch(repo_path: &std::path::Path) -> Result<()> {
     let feature_file = repo_path.join("feature.txt");
     fs::write(feature_file, "Feature branch content\n")?;
 
-    Command::new("git")
-        .args(&["add", "feature.txt"])
-        .current_dir(repo_path)
-        .output()?;
+    Command::new("git").args(&["add", "feature.txt"]).current_dir(repo_path).output()?;
 
     Command::new("git")
         .args(&["commit", "-m", "Add feature content"])

@@ -15,14 +15,8 @@ fn test_readme_uses_fix_not_auto_fix() {
     let auto_fix_count = readme_content.matches("--auto-fix").count();
     let fix_count = readme_content.matches("--fix").count();
 
-    assert_eq!(
-        auto_fix_count, 0,
-        "README.md should not contain --auto-fix references"
-    );
-    assert!(
-        fix_count > 0,
-        "README.md should contain --fix references for interactive mode"
-    );
+    assert_eq!(auto_fix_count, 0, "README.md should not contain --auto-fix references");
+    assert!(fix_count > 0, "README.md should contain --fix references for interactive mode");
 }
 
 #[test]
@@ -33,10 +27,7 @@ fn test_ai_integration_docs_use_fix_not_auto_fix() {
     let auto_fix_count = docs_content.matches("--auto-fix").count();
     let fix_count = docs_content.matches("--fix").count();
 
-    assert_eq!(
-        auto_fix_count, 0,
-        "ai-integration.md should not contain --auto-fix references"
-    );
+    assert_eq!(auto_fix_count, 0, "ai-integration.md should not contain --auto-fix references");
     assert!(
         fix_count > 0,
         "ai-integration.md should contain --fix references for interactive mode"
@@ -51,14 +42,8 @@ fn test_workflows_docs_use_fix_not_auto_fix() {
     let auto_fix_count = docs_content.matches("--auto-fix").count();
     let fix_count = docs_content.matches("--fix").count();
 
-    assert_eq!(
-        auto_fix_count, 0,
-        "workflows.md should not contain --auto-fix references"
-    );
-    assert!(
-        fix_count > 0,
-        "workflows.md should contain --fix references for interactive mode"
-    );
+    assert_eq!(auto_fix_count, 0, "workflows.md should not contain --auto-fix references");
+    assert!(fix_count > 0, "workflows.md should contain --fix references for interactive mode");
 }
 
 #[test]
@@ -69,14 +54,8 @@ fn test_commands_docs_use_fix_not_auto_fix() {
     let auto_fix_count = docs_content.matches("--auto-fix").count();
     let fix_count = docs_content.matches("--fix").count();
 
-    assert_eq!(
-        auto_fix_count, 0,
-        "commands.md should not contain --auto-fix references"
-    );
-    assert!(
-        fix_count > 0,
-        "commands.md should contain --fix references for interactive mode"
-    );
+    assert_eq!(auto_fix_count, 0, "commands.md should not contain --auto-fix references");
+    assert!(fix_count > 0, "commands.md should contain --fix references for interactive mode");
 }
 
 #[test]
@@ -86,14 +65,8 @@ fn test_setup_docs_use_fix_not_auto_fix() {
     let auto_fix_count = docs_content.matches("--auto-fix").count();
     let fix_count = docs_content.matches("--fix").count();
 
-    assert_eq!(
-        auto_fix_count, 0,
-        "setup.md should not contain --auto-fix references"
-    );
-    assert!(
-        fix_count > 0,
-        "setup.md should contain --fix references for interactive mode"
-    );
+    assert_eq!(auto_fix_count, 0, "setup.md should not contain --auto-fix references");
+    assert!(fix_count > 0, "setup.md should contain --fix references for interactive mode");
 }
 
 #[test]

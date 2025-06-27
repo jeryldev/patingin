@@ -94,10 +94,7 @@ impl PatternRegistry {
         use crate::core::DetectionMethod;
 
         for pattern in self.patterns.values() {
-            if let DetectionMethod::Regex {
-                pattern: regex_pattern,
-            } = &pattern.detection_method
-            {
+            if let DetectionMethod::Regex { pattern: regex_pattern } = &pattern.detection_method {
                 match Regex::new(regex_pattern) {
                     Ok(compiled) => {
                         self.compiled_patterns.insert(pattern.id.clone(), compiled);
@@ -178,9 +175,7 @@ impl PatternRegistry {
             };
 
             let detection_method = match yaml_rule.detection_method.method_type.as_str() {
-                "regex" => DetectionMethod::Regex {
-                    pattern: yaml_rule.detection_method.pattern,
-                },
+                "regex" => DetectionMethod::Regex { pattern: yaml_rule.detection_method.pattern },
                 "ratio" => DetectionMethod::Ratio {
                     pattern: yaml_rule.detection_method.pattern,
                     threshold: yaml_rule.detection_method.threshold.unwrap_or(0.3),
@@ -189,20 +184,14 @@ impl PatternRegistry {
                     threshold: yaml_rule.detection_method.threshold.unwrap_or(10.0) as usize,
                     pattern: yaml_rule.detection_method.pattern,
                 },
-                "custom" => DetectionMethod::Custom {
-                    pattern: yaml_rule.detection_method.pattern,
-                },
+                "custom" => DetectionMethod::Custom { pattern: yaml_rule.detection_method.pattern },
                 _ => continue, // Skip unknown detection methods
             };
 
             let examples = yaml_rule
                 .examples
                 .into_iter()
-                .map(|ex| CodeExample {
-                    bad: ex.bad,
-                    good: ex.good,
-                    explanation: ex.explanation,
-                })
+                .map(|ex| CodeExample { bad: ex.bad, good: ex.good, explanation: ex.explanation })
                 .collect();
 
             let pattern = AntiPattern {
@@ -252,10 +241,7 @@ impl PatternRegistry {
     }
 
     pub fn get_patterns_for_file(&self, file_path: &str) -> Vec<&AntiPattern> {
-        let extension = Path::new(file_path)
-            .extension()
-            .and_then(|ext| ext.to_str())
-            .unwrap_or("");
+        let extension = Path::new(file_path).extension().and_then(|ext| ext.to_str()).unwrap_or("");
 
         self.patterns
             .values()
@@ -339,9 +325,7 @@ impl PatternRegistry {
 #[allow(dead_code)]
 pub static GLOBAL_REGISTRY: Lazy<PatternRegistry> = Lazy::new(|| {
     let mut registry = PatternRegistry::new();
-    registry
-        .load_built_in_patterns()
-        .expect("Failed to load built-in patterns");
+    registry.load_built_in_patterns().expect("Failed to load built-in patterns");
     registry
 });
 
@@ -412,9 +396,7 @@ mod tests {
             language: Language::Elixir,
             severity: Severity::Critical,
             description: "Memory exhaustion through atoms".to_string(),
-            detection_method: DetectionMethod::Regex {
-                pattern: "test".to_string(),
-            },
+            detection_method: DetectionMethod::Regex { pattern: "test".to_string() },
             fix_suggestion: "Use existing atoms".to_string(),
             source_url: None,
             claude_code_fixable: true,
@@ -429,9 +411,7 @@ mod tests {
             language: Language::JavaScript,
             severity: Severity::Critical,
             description: "SQL injection vulnerability".to_string(),
-            detection_method: DetectionMethod::Regex {
-                pattern: "test".to_string(),
-            },
+            detection_method: DetectionMethod::Regex { pattern: "test".to_string() },
             fix_suggestion: "Use parameterized queries".to_string(),
             source_url: None,
             claude_code_fixable: true,
@@ -465,11 +445,7 @@ mod tests {
 
         // Setup temporary config
         let temp_dir = TempDir::new().unwrap();
-        let config_path = temp_dir
-            .path()
-            .join("test_rules.yml")
-            .to_string_lossy()
-            .to_string();
+        let config_path = temp_dir.path().join("test_rules.yml").to_string_lossy().to_string();
         let custom_rules_manager = CustomRulesManager::with_config_path(config_path);
 
         // Add a custom rule
@@ -483,12 +459,7 @@ mod tests {
         };
 
         custom_rules_manager
-            .add_project_rule(
-                "test-project",
-                "/test/path",
-                Language::JavaScript,
-                custom_rule,
-            )
+            .add_project_rule("test-project", "/test/path", Language::JavaScript, custom_rule)
             .unwrap();
 
         // Test loading custom rules into registry
@@ -496,9 +467,7 @@ mod tests {
 
         // Override the CustomRulesManager::new() behavior by setting the path through test
         // This is a limitation of our current design - in real usage, the path would be consistent
-        let custom_patterns = custom_rules_manager
-            .get_project_rules("test-project")
-            .unwrap();
+        let custom_patterns = custom_rules_manager.get_project_rules("test-project").unwrap();
         for pattern in custom_patterns {
             registry.add_pattern(pattern);
         }
@@ -576,9 +545,7 @@ mod tests {
             language,
             severity,
             description: format!("Test description for {}", id),
-            detection_method: DetectionMethod::Regex {
-                pattern: r"test_pattern".to_string(),
-            },
+            detection_method: DetectionMethod::Regex { pattern: r"test_pattern".to_string() },
             fix_suggestion: "Fix this test pattern".to_string(),
             source_url: None,
             claude_code_fixable: false,
@@ -602,10 +569,7 @@ mod tests {
 
             // Test that embedded Elixir rules load successfully
             let result = registry.load_embedded_elixir_rules();
-            assert!(
-                result.is_ok(),
-                "Should load embedded Elixir rules without error"
-            );
+            assert!(result.is_ok(), "Should load embedded Elixir rules without error");
 
             // Should have specific Elixir patterns
             assert!(registry.get_pattern("dynamic_atom_creation").is_some());
@@ -614,10 +578,7 @@ mod tests {
 
             // Check language filtering works
             let elixir_patterns = registry.get_patterns_for_language(&Language::Elixir);
-            assert!(
-                elixir_patterns.len() >= 6,
-                "Should have at least 6 Elixir patterns"
-            );
+            assert!(elixir_patterns.len() >= 6, "Should have at least 6 Elixir patterns");
         }
 
         #[test]
@@ -626,10 +587,7 @@ mod tests {
 
             // Test that embedded JavaScript rules load successfully
             let result = registry.load_embedded_javascript_rules();
-            assert!(
-                result.is_ok(),
-                "Should load embedded JavaScript rules without error"
-            );
+            assert!(result.is_ok(), "Should load embedded JavaScript rules without error");
 
             // Should have specific JavaScript patterns
             assert!(registry.get_pattern("console_log_production").is_some());
@@ -638,10 +596,7 @@ mod tests {
 
             // Check language filtering works
             let js_patterns = registry.get_patterns_for_language(&Language::JavaScript);
-            assert!(
-                js_patterns.len() >= 8,
-                "Should have at least 8 JavaScript patterns"
-            );
+            assert!(js_patterns.len() >= 8, "Should have at least 8 JavaScript patterns");
         }
 
         #[test]
@@ -650,25 +605,15 @@ mod tests {
 
             // Test loading all embedded rules
             let result = registry.load_all_embedded_rules();
-            assert!(
-                result.is_ok(),
-                "Should load all embedded rules without error"
-            );
+            assert!(result.is_ok(), "Should load all embedded rules without error");
 
             // Should have patterns for multiple languages
-            assert!(!registry
-                .get_patterns_for_language(&Language::Elixir)
-                .is_empty());
-            assert!(!registry
-                .get_patterns_for_language(&Language::JavaScript)
-                .is_empty());
+            assert!(!registry.get_patterns_for_language(&Language::Elixir).is_empty());
+            assert!(!registry.get_patterns_for_language(&Language::JavaScript).is_empty());
 
             // Should have a reasonable total number of patterns
             let total_patterns = registry.patterns.len();
-            assert!(
-                total_patterns >= 14,
-                "Should have at least 14 total patterns"
-            );
+            assert!(total_patterns >= 14, "Should have at least 14 total patterns");
         }
 
         #[test]
@@ -676,17 +621,12 @@ mod tests {
             let start = Instant::now();
 
             let mut registry = PatternRegistry::new();
-            registry
-                .load_all_embedded_rules()
-                .expect("Should load rules");
+            registry.load_all_embedded_rules().expect("Should load rules");
 
             let load_duration = start.elapsed();
 
             // Loading should be very fast (embedded in binary)
-            assert!(
-                load_duration.as_millis() < 100,
-                "Embedded rule loading should be < 100ms"
-            );
+            assert!(load_duration.as_millis() < 100, "Embedded rule loading should be < 100ms");
 
             // Test lookup performance after loading
             let lookup_start = Instant::now();
@@ -694,31 +634,20 @@ mod tests {
             let _elixir_patterns = registry.get_patterns_for_language(&Language::Elixir);
             let lookup_duration = lookup_start.elapsed();
 
-            assert!(
-                lookup_duration.as_micros() < 1000,
-                "Lookups should be < 1ms"
-            );
+            assert!(lookup_duration.as_micros() < 1000, "Lookups should be < 1ms");
         }
 
         #[test]
         fn test_pre_compiled_regex_patterns() {
             let mut registry = PatternRegistry::new();
-            registry
-                .load_all_embedded_rules()
-                .expect("Should load rules");
+            registry.load_all_embedded_rules().expect("Should load rules");
 
             // Test that regex patterns compile successfully
             let result = registry.compile_all_patterns();
-            assert!(
-                result.is_ok(),
-                "All regex patterns should compile successfully"
-            );
+            assert!(result.is_ok(), "All regex patterns should compile successfully");
 
             // Test that compiled patterns are accessible
-            assert!(
-                registry.compiled_patterns.len() > 0,
-                "Should have compiled patterns"
-            );
+            assert!(registry.compiled_patterns.len() > 0, "Should have compiled patterns");
 
             // Test lookup performance with compiled patterns
             let start = Instant::now();
@@ -750,14 +679,8 @@ mod tests {
                 if let Some(first_rule) = elixir_rules.first() {
                     assert!(first_rule.get("id").is_some(), "Rule should have ID");
                     assert!(first_rule.get("name").is_some(), "Rule should have name");
-                    assert!(
-                        first_rule.get("language").is_some(),
-                        "Rule should have language"
-                    );
-                    assert!(
-                        first_rule.get("severity").is_some(),
-                        "Rule should have severity"
-                    );
+                    assert!(first_rule.get("language").is_some(), "Rule should have language");
+                    assert!(first_rule.get("severity").is_some(), "Rule should have severity");
                     assert!(
                         first_rule.get("description").is_some(),
                         "Rule should have description"

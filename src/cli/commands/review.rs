@@ -143,9 +143,7 @@ fn filter_diff_by_language(
         })
         .collect();
 
-    crate::git::GitDiff {
-        files: filtered_files,
-    }
+    crate::git::GitDiff { files: filtered_files }
 }
 
 fn output_json_results(
@@ -200,18 +198,9 @@ fn output_json_results(
         .collect();
 
     // These are now from review_result.summary, but keeping for validation
-    let _critical_count = violations
-        .iter()
-        .filter(|v| v.severity == Severity::Critical)
-        .count();
-    let _major_count = violations
-        .iter()
-        .filter(|v| v.severity == Severity::Major)
-        .count();
-    let _warning_count = violations
-        .iter()
-        .filter(|v| v.severity == Severity::Warning)
-        .count();
+    let _critical_count = violations.iter().filter(|v| v.severity == Severity::Critical).count();
+    let _major_count = violations.iter().filter(|v| v.severity == Severity::Major).count();
+    let _warning_count = violations.iter().filter(|v| v.severity == Severity::Warning).count();
     let _auto_fixable_count = violations.iter().filter(|v| v.auto_fixable).count();
 
     let mut _files_affected: Vec<_> = violations.iter().map(|v| &v.file_path).collect();
@@ -265,17 +254,10 @@ fn output_human_readable_results(
         Vec<&crate::core::ReviewViolation>,
     > = std::collections::HashMap::new();
     for violation in violations {
-        violations_by_file
-            .entry(violation.file_path.clone())
-            .or_default()
-            .push(violation);
+        violations_by_file.entry(violation.file_path.clone()).or_default().push(violation);
     }
 
-    println!(
-        "📊 Found {} violations in {} files\n",
-        violations.len(),
-        violations_by_file.len()
-    );
+    println!("📊 Found {} violations in {} files\n", violations.len(), violations_by_file.len());
 
     // Show violations grouped by file
     for (file_path, file_violations) in violations_by_file {
@@ -314,18 +296,9 @@ fn output_human_readable_results(
     }
 
     // Summary
-    let critical_count = violations
-        .iter()
-        .filter(|v| v.severity == Severity::Critical)
-        .count();
-    let major_count = violations
-        .iter()
-        .filter(|v| v.severity == Severity::Major)
-        .count();
-    let warning_count = violations
-        .iter()
-        .filter(|v| v.severity == Severity::Warning)
-        .count();
+    let critical_count = violations.iter().filter(|v| v.severity == Severity::Critical).count();
+    let major_count = violations.iter().filter(|v| v.severity == Severity::Major).count();
+    let warning_count = violations.iter().filter(|v| v.severity == Severity::Warning).count();
     let auto_fixable_count = violations.iter().filter(|v| v.auto_fixable).count();
 
     println!("📊 Summary: {} violations", violations.len());
@@ -344,10 +317,7 @@ fn output_human_readable_results(
 
         if !args.fix && !args.auto_fix && !args.suggest {
             println!("\n💡 Use {} to see suggested fixes", "--suggest".cyan());
-            println!(
-                "💡 Use {} to launch interactive Claude Code session",
-                "--fix".cyan()
-            );
+            println!("💡 Use {} to launch interactive Claude Code session", "--fix".cyan());
         }
     }
 
@@ -377,11 +347,7 @@ async fn handle_auto_fix(
     violations: &[crate::core::ReviewViolation],
     no_confirm: bool,
 ) -> Result<()> {
-    let auto_fixable: Vec<_> = violations
-        .iter()
-        .filter(|v| v.auto_fixable)
-        .cloned()
-        .collect();
+    let auto_fixable: Vec<_> = violations.iter().filter(|v| v.auto_fixable).cloned().collect();
 
     if auto_fixable.is_empty() {
         println!("💡 No auto-fixable violations found");
@@ -452,11 +418,7 @@ async fn handle_interactive_fix(violations: &[crate::core::ReviewViolation]) -> 
     let query = create_claude_query(violations)?;
 
     // Determine which command to use
-    let claude_cmd = if which("claude").is_ok() {
-        "claude"
-    } else {
-        "claude-code"
-    };
+    let claude_cmd = if which("claude").is_ok() { "claude" } else { "claude-code" };
 
     // Launch Claude Code with the query
     use std::process::Command;
@@ -483,10 +445,8 @@ fn create_claude_query(violations: &[crate::core::ReviewViolation]) -> Result<St
         Err(_) => {
             // Fallback project info
             let current_dir = env::current_dir()?;
-            let project_name = current_dir
-                .file_name()
-                .and_then(|n| n.to_str())
-                .unwrap_or("unknown-project");
+            let project_name =
+                current_dir.file_name().and_then(|n| n.to_str()).unwrap_or("unknown-project");
 
             crate::core::project_detector::ProjectInfo {
                 name: project_name.to_string(),
@@ -502,23 +462,13 @@ fn create_claude_query(violations: &[crate::core::ReviewViolation]) -> Result<St
     let mut files_with_violations: HashMap<String, Vec<&crate::core::ReviewViolation>> =
         HashMap::new();
     for violation in violations {
-        files_with_violations
-            .entry(violation.file_path.clone())
-            .or_default()
-            .push(violation);
+        files_with_violations.entry(violation.file_path.clone()).or_default().push(violation);
     }
 
     // Format languages
-    let languages: Vec<String> = project_info
-        .languages
-        .iter()
-        .map(|l| format!("{l:?}"))
-        .collect();
-    let languages_str = if languages.is_empty() {
-        "Unknown".to_string()
-    } else {
-        languages.join(", ")
-    };
+    let languages: Vec<String> = project_info.languages.iter().map(|l| format!("{l:?}")).collect();
+    let languages_str =
+        if languages.is_empty() { "Unknown".to_string() } else { languages.join(", ") };
 
     // Build the comprehensive query
     let mut query = format!(
@@ -620,9 +570,7 @@ mod review_command_tests {
             language: Language::Elixir,
             severity: Severity::Major,
             description: "Test description".to_string(),
-            detection_method: DetectionMethod::Regex {
-                pattern: "test".to_string(),
-            },
+            detection_method: DetectionMethod::Regex { pattern: "test".to_string() },
             fix_suggestion: "Fix this test issue".to_string(),
             source_url: None,
             claude_code_fixable: true,
@@ -663,11 +611,7 @@ mod review_command_tests {
             auto_fixable_count: 1,
         };
 
-        ReviewResult {
-            violations,
-            files_with_violations,
-            summary,
-        }
+        ReviewResult { violations, files_with_violations, summary }
     }
 
     #[test]
@@ -847,9 +791,7 @@ mod review_command_tests {
             removed_lines: vec![],
         };
 
-        let git_diff = GitDiff {
-            files: vec![file_diff],
-        };
+        let git_diff = GitDiff { files: vec![file_diff] };
 
         let filtered = filter_diff_by_language(git_diff, &Language::Elixir);
         assert_eq!(filtered.files.len(), 1);
@@ -872,9 +814,7 @@ mod review_command_tests {
             removed_lines: vec![],
         };
 
-        let git_diff = GitDiff {
-            files: vec![file_diff],
-        };
+        let git_diff = GitDiff { files: vec![file_diff] };
 
         let filtered = filter_diff_by_language(git_diff, &Language::Elixir);
         assert_eq!(filtered.files.len(), 0);
@@ -901,18 +841,9 @@ mod review_command_tests {
             },
         ];
 
-        let critical_count = violations
-            .iter()
-            .filter(|v| v.severity == Severity::Critical)
-            .count();
-        let major_count = violations
-            .iter()
-            .filter(|v| v.severity == Severity::Major)
-            .count();
-        let warning_count = violations
-            .iter()
-            .filter(|v| v.severity == Severity::Warning)
-            .count();
+        let critical_count = violations.iter().filter(|v| v.severity == Severity::Critical).count();
+        let major_count = violations.iter().filter(|v| v.severity == Severity::Major).count();
+        let warning_count = violations.iter().filter(|v| v.severity == Severity::Warning).count();
         let auto_fixable_count = violations.iter().filter(|v| v.auto_fixable).count();
 
         assert_eq!(critical_count, 1);

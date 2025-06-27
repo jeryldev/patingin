@@ -10,10 +10,7 @@ use crate::git::GitIntegration;
 
 pub async fn run() -> Result<()> {
     println!("{}", "🔧 Patingin Environment Setup & Status".bold());
-    println!(
-        "{}\n",
-        "Comprehensive diagnostic of your development environment".dimmed()
-    );
+    println!("{}\n", "Comprehensive diagnostic of your development environment".dimmed());
 
     let mut checks_passed = 0;
     let mut total_checks = 0;
@@ -31,34 +28,22 @@ pub async fn run() -> Result<()> {
                 "✓".green(),
                 ProjectDetector::describe_project(&project_info).bold()
             );
-            println!(
-                "  📂 Root path: {}",
-                project_info.root_path.display().to_string().dimmed()
-            );
+            println!("  📂 Root path: {}", project_info.root_path.display().to_string().dimmed());
 
             if !project_info.package_files.is_empty() {
-                println!(
-                    "  📦 Package files: {}",
-                    project_info.package_files.join(", ").dimmed()
-                );
+                println!("  📦 Package files: {}", project_info.package_files.join(", ").dimmed());
             }
 
             if !project_info.languages.is_empty() {
-                let lang_names: Vec<String> = project_info
-                    .languages
-                    .iter()
-                    .map(|l| format!("{l:?}"))
-                    .collect();
+                let lang_names: Vec<String> =
+                    project_info.languages.iter().map(|l| format!("{l:?}")).collect();
                 println!("  🔤 Languages: {}", lang_names.join(", ").cyan());
             }
             checks_passed += 1;
         }
         Err(e) => {
             println!("  {} Failed to detect project: {}", "✗".red(), e);
-            println!(
-                "  📂 Current directory: {}",
-                current_dir.display().to_string().dimmed()
-            );
+            println!("  📂 Current directory: {}", current_dir.display().to_string().dimmed());
         }
     }
     println!();
@@ -134,11 +119,7 @@ pub async fn run() -> Result<()> {
     let integration = ClaudeCodeIntegration::detect();
     if integration.available {
         let version_display = integration.version.as_deref().unwrap_or("unknown version");
-        println!(
-            "  {} Claude Code CLI: {}",
-            "✓".green(),
-            version_display.dimmed()
-        );
+        println!("  {} Claude Code CLI: {}", "✓".green(), version_display.dimmed());
         println!("    ✨ Auto-fix integration: {}", "Ready".green());
         checks_passed += 1;
     } else {
@@ -158,19 +139,9 @@ pub async fn run() -> Result<()> {
 
     for (tool, _description) in &system_tools {
         if which(tool).is_ok() {
-            println!(
-                "  {} {}: {}",
-                "✓".green(),
-                tool.bold(),
-                "Available".dimmed()
-            );
+            println!("  {} {}: {}", "✓".green(), tool.bold(), "Available".dimmed());
         } else {
-            println!(
-                "  {} {}: {}",
-                "○".dimmed(),
-                tool.bold(),
-                "Optional but recommended".dimmed()
-            );
+            println!("  {} {}: {}", "○".dimmed(), tool.bold(), "Optional but recommended".dimmed());
         }
     }
     println!();
@@ -203,10 +174,7 @@ pub async fn run() -> Result<()> {
             "!".yellow(),
             "Will be created on first use".yellow()
         );
-        println!(
-            "    📂 Location: {}",
-            config_dir.display().to_string().dimmed()
-        );
+        println!("    📂 Location: {}", config_dir.display().to_string().dimmed());
         warnings += 1;
     }
 
@@ -224,10 +192,7 @@ pub async fn run() -> Result<()> {
 
     if !project_config_found {
         println!("  {} Project config: {}", "○".dimmed(), "Optional".dimmed());
-        println!(
-            "    💡 Create with: {}",
-            "patingin rules add --project".cyan()
-        );
+        println!("    💡 Create with: {}", "patingin rules add --project".cyan());
     }
     println!();
 
@@ -238,11 +203,7 @@ pub async fn run() -> Result<()> {
     println!("  🖥️  OS: {} {}", env::consts::OS, env::consts::ARCH);
 
     // Patingin version
-    println!(
-        "  🦀 Patingin: {} ({})",
-        env!("CARGO_PKG_VERSION"),
-        env!("CARGO_PKG_NAME")
-    );
+    println!("  🦀 Patingin: {} ({})", env!("CARGO_PKG_VERSION"), env!("CARGO_PKG_NAME"));
 
     // Environment variables
     if let Ok(editor) = env::var("EDITOR") {
@@ -264,10 +225,7 @@ pub async fn run() -> Result<()> {
         println!("{} Environment is fully ready!", "🎉".green().bold());
         println!("  All {checks_passed} checks passed with no warnings");
     } else if checks_passed == total_checks {
-        println!(
-            "{} Environment is ready with minor warnings",
-            "✅".green().bold()
-        );
+        println!("{} Environment is ready with minor warnings", "✅".green().bold());
         println!("  {checks_passed} checks passed, {warnings} warnings");
     } else {
         println!("{} Environment needs attention", "⚠️".yellow().bold());
@@ -283,10 +241,7 @@ pub async fn run() -> Result<()> {
     if warnings > 0 {
         println!("  • Review warnings for optimal experience");
     }
-    println!(
-        "  • Run {} to start analyzing your code",
-        "patingin review".cyan()
-    );
+    println!("  • Run {} to start analyzing your code", "patingin review".cyan());
     println!("  • Use {} to see available rules", "patingin rules".cyan());
 
     Ok(())
@@ -341,9 +296,8 @@ mod setup_command_tests {
     #[test]
     fn test_claude_code_detection() {
         // Test Claude Code CLI detection via npm
-        let npm_check = Command::new("npm")
-            .args(&["list", "-g", "@anthropic-ai/claude-code"])
-            .output();
+        let npm_check =
+            Command::new("npm").args(&["list", "-g", "@anthropic-ai/claude-code"]).output();
 
         let claude_code_npm_installed = if let Ok(output) = npm_check {
             let output_str = String::from_utf8_lossy(&output.stdout);
@@ -356,25 +310,15 @@ mod setup_command_tests {
 
         // Detection logic should correctly identify availability
         // Note: integration.available might have additional checks beyond just which()
-        println!(
-            "Claude Code npm package installed: {}",
-            claude_code_npm_installed
-        );
-        println!(
-            "Integration detected as available: {}",
-            integration.available
-        );
+        println!("Claude Code npm package installed: {}", claude_code_npm_installed);
+        println!("Integration detected as available: {}", integration.available);
         // so we just test that the detection doesn't panic and returns a boolean
         assert!(integration.available == true || integration.available == false);
     }
 
     #[test]
     fn test_system_tools_detection() {
-        let tools = [
-            ("rg", "ripgrep"),
-            ("fd", "fd-find"),
-            ("fzf", "fuzzy finder"),
-        ];
+        let tools = [("rg", "ripgrep"), ("fd", "fd-find"), ("fzf", "fuzzy finder")];
 
         for (tool, _description) in &tools {
             let available = which(tool).is_ok();
@@ -467,9 +411,7 @@ mod setup_command_tests {
         use std::process::Command;
 
         // Test git status functionality (if in git repo)
-        let status_output = Command::new("git")
-            .args(&["status", "--porcelain"])
-            .output();
+        let status_output = Command::new("git").args(&["status", "--porcelain"]).output();
 
         match status_output {
             Ok(output) => {

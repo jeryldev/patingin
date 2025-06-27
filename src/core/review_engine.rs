@@ -56,25 +56,18 @@ impl Default for ReviewEngine {
 impl ReviewEngine {
     pub fn new() -> Self {
         let mut registry = PatternRegistry::new();
-        registry
-            .load_built_in_patterns()
-            .expect("Failed to load built-in patterns");
+        registry.load_built_in_patterns().expect("Failed to load built-in patterns");
 
         Self { registry }
     }
 
     pub fn new_with_custom_rules(project_name: &str) -> Self {
         let mut registry = PatternRegistry::new();
-        registry
-            .load_built_in_patterns()
-            .expect("Failed to load built-in patterns");
+        registry.load_built_in_patterns().expect("Failed to load built-in patterns");
 
         // Load custom rules for the project
         if let Err(e) = registry.load_custom_rules(project_name) {
-            eprintln!(
-                "Warning: Failed to load custom rules for {}: {}",
-                project_name, e
-            );
+            eprintln!("Warning: Failed to load custom rules for {}: {}", project_name, e);
         }
 
         Self { registry }
@@ -95,9 +88,7 @@ impl ReviewEngine {
         }
 
         // Still detect language for violation metadata
-        let language = self
-            .detect_language_from_path(file_path)
-            .unwrap_or(Language::JavaScript);
+        let language = self.detect_language_from_path(file_path).unwrap_or(Language::JavaScript);
 
         // Check each changed line against patterns
         for changed_line in changed_lines {
@@ -131,11 +122,7 @@ impl ReviewEngine {
 
         let summary = self.create_review_summary(&all_violations);
 
-        Ok(ReviewResult {
-            violations: all_violations,
-            files_with_violations,
-            summary,
-        })
+        Ok(ReviewResult { violations: all_violations, files_with_violations, summary })
     }
 
     pub fn filter_violations_by_severity<'a>(
@@ -143,26 +130,14 @@ impl ReviewEngine {
         violations: &'a [ReviewViolation],
         min_severity: Severity,
     ) -> Vec<&'a ReviewViolation> {
-        violations
-            .iter()
-            .filter(|v| v.severity >= min_severity)
-            .collect()
+        violations.iter().filter(|v| v.severity >= min_severity).collect()
     }
 
     pub fn create_review_summary(&self, violations: &[ReviewViolation]) -> ReviewSummary {
         let total_violations = violations.len();
-        let critical_count = violations
-            .iter()
-            .filter(|v| v.severity == Severity::Critical)
-            .count();
-        let major_count = violations
-            .iter()
-            .filter(|v| v.severity == Severity::Major)
-            .count();
-        let warning_count = violations
-            .iter()
-            .filter(|v| v.severity == Severity::Warning)
-            .count();
+        let critical_count = violations.iter().filter(|v| v.severity == Severity::Critical).count();
+        let major_count = violations.iter().filter(|v| v.severity == Severity::Major).count();
+        let warning_count = violations.iter().filter(|v| v.severity == Severity::Warning).count();
         let auto_fixable_count = violations.iter().filter(|v| v.auto_fixable).count();
 
         let mut files_affected: Vec<String> =
@@ -209,9 +184,7 @@ impl ReviewEngine {
         }
 
         let matched = match &pattern.detection_method {
-            DetectionMethod::Regex {
-                pattern: regex_pattern,
-            } => {
+            DetectionMethod::Regex { pattern: regex_pattern } => {
                 // Use pre-compiled regex if available
                 if let Some(compiled_regex) = self.registry.get_compiled_pattern(&pattern.id) {
                     compiled_regex.is_match(&changed_line.content)
@@ -223,10 +196,7 @@ impl ReviewEngine {
                     }
                 }
             }
-            DetectionMethod::Ratio {
-                pattern: regex_pattern,
-                threshold,
-            } => {
+            DetectionMethod::Ratio { pattern: regex_pattern, threshold } => {
                 // For ratio-based detection, check if pattern appears frequently enough
                 match Regex::new(regex_pattern) {
                     Ok(regex) => {
@@ -242,10 +212,7 @@ impl ReviewEngine {
                     Err(_) => false,
                 }
             }
-            DetectionMethod::LineCount {
-                threshold: _,
-                pattern: _,
-            } => {
+            DetectionMethod::LineCount { threshold: _, pattern: _ } => {
                 // Line count detection would need more context (entire function/file)
                 // For now, skip this detection method for single lines
                 false
@@ -317,9 +284,7 @@ mod review_engine_tests {
 
         assert_eq!(atom_violation.line_number, 42);
         assert_eq!(atom_violation.severity, Severity::Critical);
-        assert!(atom_violation
-            .fix_suggestion
-            .contains("String.to_existing_atom"));
+        assert!(atom_violation.fix_suggestion.contains("String.to_existing_atom"));
     }
 
     #[test]
@@ -348,11 +313,7 @@ mod review_engine_tests {
         assert_eq!(violations.len(), 200);
 
         // Should be fast even with many lines (CI/CD timeout adjusted)
-        assert!(
-            duration.as_millis() < 2000,
-            "Review should be fast, took: {:?}",
-            duration
-        );
+        assert!(duration.as_millis() < 2000, "Review should be fast, took: {:?}", duration);
     }
 
     #[test]
@@ -383,22 +344,12 @@ mod review_engine_tests {
             .expect("Should review JavaScript");
 
         // Should detect language-specific anti-patterns
-        assert!(
-            !elixir_violations.is_empty(),
-            "Should detect Elixir violations"
-        );
-        assert!(
-            !js_violations.is_empty(),
-            "Should detect JavaScript violations"
-        );
+        assert!(!elixir_violations.is_empty(), "Should detect Elixir violations");
+        assert!(!js_violations.is_empty(), "Should detect JavaScript violations");
 
         // Violations should be for correct languages
-        assert!(elixir_violations
-            .iter()
-            .all(|v| v.language == Language::Elixir));
-        assert!(js_violations
-            .iter()
-            .all(|v| v.language == Language::JavaScript));
+        assert!(elixir_violations.iter().all(|v| v.language == Language::Elixir));
+        assert!(js_violations.iter().all(|v| v.language == Language::JavaScript));
     }
 
     #[test]
@@ -420,30 +371,18 @@ index 1234567..abcdefg 100644
         let git_diff = GitDiffParser::parse(diff_output).expect("Should parse diff");
         let engine = ReviewEngine::new();
 
-        let review_result = engine
-            .review_git_diff(&git_diff)
-            .expect("Should review diff");
+        let review_result = engine.review_git_diff(&git_diff).expect("Should review diff");
 
-        assert!(
-            !review_result.violations.is_empty(),
-            "Should find violations in diff"
-        );
+        assert!(!review_result.violations.is_empty(), "Should find violations in diff");
 
         // Should have file-level grouping
-        assert!(review_result
-            .files_with_violations
-            .contains_key("lib/user.ex"));
+        assert!(review_result.files_with_violations.contains_key("lib/user.ex"));
 
         let user_file_violations = &review_result.files_with_violations["lib/user.ex"];
-        assert!(
-            !user_file_violations.is_empty(),
-            "Should have violations in user.ex"
-        );
+        assert!(!user_file_violations.is_empty(), "Should have violations in user.ex");
 
         // Should detect the atom creation issue
-        assert!(user_file_violations
-            .iter()
-            .any(|v| v.rule.id == "dynamic_atom_creation"));
+        assert!(user_file_violations.iter().any(|v| v.rule.id == "dynamic_atom_creation"));
     }
 
     #[test]
@@ -473,10 +412,7 @@ index 1234567..abcdefg 100644
 
         // Test unknown extension
         let unknown_lang = engine.detect_language_from_path("README.md");
-        assert_eq!(
-            unknown_lang, None,
-            "Should return None for unknown extensions"
-        );
+        assert_eq!(unknown_lang, None, "Should return None for unknown extensions");
     }
 
     #[test]
@@ -491,9 +427,7 @@ index 1234567..abcdefg 100644
                 language: Language::Elixir,
                 severity: Severity::Critical,
                 description: "Test".to_string(),
-                detection_method: DetectionMethod::Regex {
-                    pattern: "test".to_string(),
-                },
+                detection_method: DetectionMethod::Regex { pattern: "test".to_string() },
                 fix_suggestion: "Fix".to_string(),
                 source_url: None,
                 claude_code_fixable: true,

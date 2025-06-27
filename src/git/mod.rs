@@ -92,11 +92,8 @@ impl GitDiffParser {
 
                 // Extract file path from "diff --git a/path b/path"
                 if let Some(path) = Self::extract_file_path(line) {
-                    current_file = Some(FileDiff {
-                        path,
-                        added_lines: Vec::new(),
-                        removed_lines: Vec::new(),
-                    });
+                    current_file =
+                        Some(FileDiff { path, added_lines: Vec::new(), removed_lines: Vec::new() });
                 }
             } else if line.starts_with("@@") {
                 // Parse hunk header to get line numbers
@@ -255,14 +252,8 @@ index 1234567..abcdefg 100644
         assert!(file_diff.removed_lines.len() > 0);
 
         // Should capture the added line with the fix
-        let added_lines: Vec<_> = file_diff
-            .added_lines
-            .iter()
-            .map(|line| &line.content)
-            .collect();
-        assert!(added_lines
-            .iter()
-            .any(|line| line.contains("String.to_existing_atom")));
+        let added_lines: Vec<_> = file_diff.added_lines.iter().map(|line| &line.content).collect();
+        assert!(added_lines.iter().any(|line| line.contains("String.to_existing_atom")));
     }
 
     #[test]
@@ -307,11 +298,7 @@ index 9876543..fedcba9 100644
 
         for scope in scopes {
             let git_cmd = GitDiffParser::build_git_command(&scope);
-            assert!(
-                !git_cmd.is_empty(),
-                "Git command should not be empty for scope: {:?}",
-                scope
-            );
+            assert!(!git_cmd.is_empty(), "Git command should not be empty for scope: {:?}", scope);
 
             // Commands should start with "git diff"
             assert!(

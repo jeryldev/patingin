@@ -131,11 +131,7 @@ impl ProjectDetector {
         }
 
         // Fallback to directory name
-        Ok(project_root
-            .file_name()
-            .and_then(|name| name.to_str())
-            .unwrap_or("unknown")
-            .to_string())
+        Ok(project_root.file_name().and_then(|name| name.to_str()).unwrap_or("unknown").to_string())
     }
 
     /// Get project name from package.json
@@ -167,10 +163,7 @@ impl ProjectDetector {
         let content = fs::read_to_string(&mix_exs_path).context("Failed to read mix.exs")?;
 
         // Simple regex-based extraction (could be improved with proper Elixir parsing)
-        if let Some(caps) = regex::Regex::new(r#"app:\s*:(\w+)"#)
-            .unwrap()
-            .captures(&content)
-        {
+        if let Some(caps) = regex::Regex::new(r#"app:\s*:(\w+)"#).unwrap().captures(&content) {
             Ok(caps[1].to_string())
         } else {
             Err(anyhow::anyhow!("Could not extract app name from mix.exs"))
@@ -205,16 +198,8 @@ impl ProjectDetector {
         // Check for specific package files
         let package_checks = vec![
             ("mix.exs", Language::Elixir, ProjectType::Elixir),
-            (
-                "package.json",
-                Language::JavaScript,
-                ProjectType::JavaScript,
-            ),
-            (
-                "tsconfig.json",
-                Language::TypeScript,
-                ProjectType::TypeScript,
-            ),
+            ("package.json", Language::JavaScript, ProjectType::JavaScript),
+            ("tsconfig.json", Language::TypeScript, ProjectType::TypeScript),
             ("pyproject.toml", Language::Python, ProjectType::Python),
             ("requirements.txt", Language::Python, ProjectType::Python),
             ("Cargo.toml", Language::Rust, ProjectType::Rust),
@@ -370,9 +355,7 @@ mod project_detector_tests {
         assert_eq!(project_info.name, "my-js-project");
         assert!(project_info.languages.contains(&Language::JavaScript));
         assert!(matches!(project_info.project_type, ProjectType::JavaScript));
-        assert!(project_info
-            .package_files
-            .contains(&"package.json".to_string()));
+        assert!(project_info.package_files.contains(&"package.json".to_string()));
     }
 
     #[test]
@@ -396,9 +379,7 @@ mod project_detector_tests {
         assert_eq!(project_info.name, "my-rust-project");
         assert!(project_info.languages.contains(&Language::Rust));
         assert!(matches!(project_info.project_type, ProjectType::Rust));
-        assert!(project_info
-            .package_files
-            .contains(&"Cargo.toml".to_string()));
+        assert!(project_info.package_files.contains(&"Cargo.toml".to_string()));
     }
 
     #[test]
@@ -445,11 +426,8 @@ mod project_detector_tests {
         let project_root = temp_dir.path();
 
         // Create both package.json and mix.exs
-        fs::write(
-            project_root.join("package.json"),
-            r#"{"name": "multi-lang"}"#,
-        )
-        .expect("Should write package.json");
+        fs::write(project_root.join("package.json"), r#"{"name": "multi-lang"}"#)
+            .expect("Should write package.json");
         fs::write(project_root.join("mix.exs"), "").expect("Should write mix.exs");
 
         let project_info = ProjectDetector::analyze_project(project_root)
@@ -487,18 +465,9 @@ mod project_detector_tests {
             package_files: vec!["mix.exs".to_string()],
         };
 
-        assert!(ProjectDetector::project_uses_language(
-            &project_info,
-            &Language::Elixir
-        ));
-        assert!(ProjectDetector::project_uses_language(
-            &project_info,
-            &Language::JavaScript
-        ));
-        assert!(!ProjectDetector::project_uses_language(
-            &project_info,
-            &Language::Python
-        ));
+        assert!(ProjectDetector::project_uses_language(&project_info, &Language::Elixir));
+        assert!(ProjectDetector::project_uses_language(&project_info, &Language::JavaScript));
+        assert!(!ProjectDetector::project_uses_language(&project_info, &Language::Python));
     }
 
     #[test]
@@ -530,28 +499,16 @@ mod project_detector_tests {
                 assert!(!project_info.name.is_empty(), "Project should have a name");
                 assert!(project_info.languages.contains(&Language::Rust));
                 assert!(matches!(project_info.project_type, ProjectType::Rust));
-                assert!(project_info
-                    .package_files
-                    .contains(&"Cargo.toml".to_string()));
+                assert!(project_info.package_files.contains(&"Cargo.toml".to_string()));
 
-                println!(
-                    "Detected project: {} in {}",
-                    project_info.name,
-                    current_dir.display()
-                );
-                println!(
-                    "Description: {}",
-                    ProjectDetector::describe_project(&project_info)
-                );
+                println!("Detected project: {} in {}", project_info.name, current_dir.display());
+                println!("Description: {}", ProjectDetector::describe_project(&project_info));
             } else {
                 panic!("Should detect Rust project when Cargo.toml exists");
             }
         } else {
             // Skip test if not in a Rust project directory (e.g., in test temp dir)
-            println!(
-                "Skipping test - no Cargo.toml found in {}",
-                current_dir.display()
-            );
+            println!("Skipping test - no Cargo.toml found in {}", current_dir.display());
         }
     }
 }

@@ -42,10 +42,7 @@ invalid_yaml: [
     let result =
         std::panic::catch_unwind(|| custom_rules_manager.get_project_rules("test-project"));
 
-    assert!(
-        result.is_ok(),
-        "CustomRulesManager should not panic on invalid YAML"
-    );
+    assert!(result.is_ok(), "CustomRulesManager should not panic on invalid YAML");
 }
 
 #[test]
@@ -101,10 +98,7 @@ fn test_non_existent_project_paths() {
     match result {
         Ok(project_info) => {
             // If it succeeds, should have reasonable defaults
-            assert!(
-                !project_info.name.is_empty(),
-                "Project name should not be empty"
-            );
+            assert!(!project_info.name.is_empty(), "Project name should not be empty");
         }
         Err(e) => {
             // Error should be informative
@@ -196,10 +190,7 @@ async fn test_setup_command_with_missing_git() {
     let result = setup::run().await;
 
     // Setup should always succeed, but may show warnings about missing tools
-    assert!(
-        result.is_ok(),
-        "Setup should not fail even if git is missing"
-    );
+    assert!(result.is_ok(), "Setup should not fail even if git is missing");
 
     // Note: We can't actually test missing git without modifying PATH,
     // but the setup command should handle it gracefully
@@ -219,10 +210,7 @@ fn test_claude_code_integration_with_missing_cli() {
 
     // If not available, version should be None
     if !integration.available {
-        assert!(
-            integration.version.is_none(),
-            "Version should be None when CLI is missing"
-        );
+        assert!(integration.version.is_none(), "Version should be None when CLI is missing");
     }
 }
 
@@ -285,10 +273,7 @@ fn test_large_configuration_file_handling() {
     let duration = start_time.elapsed();
 
     // Should complete within reasonable time (less than 1 second)
-    assert!(
-        duration.as_millis() < 1000,
-        "Large config loading should be fast"
-    );
+    assert!(duration.as_millis() < 1000, "Large config loading should be fast");
 
     // Should handle the large file without errors
     match result {
@@ -329,10 +314,7 @@ fn test_concurrent_config_access() {
     let mut results = vec![];
     for handle in handles {
         let result = handle.join();
-        assert!(
-            result.is_ok(),
-            "Thread should not panic during concurrent access"
-        );
+        assert!(result.is_ok(), "Thread should not panic during concurrent access");
         results.push(result.unwrap());
     }
 

@@ -43,20 +43,10 @@ fn test_large_codebase_handling_100_files() {
     let review_result = result.unwrap();
 
     // Should find violations efficiently
-    assert!(
-        !review_result.violations.is_empty(),
-        "Should find violations in large codebase"
-    );
-    assert!(
-        review_result.violations.len() <= 500,
-        "Should not find more violations than expected"
-    );
+    assert!(!review_result.violations.is_empty(), "Should find violations in large codebase");
+    assert!(review_result.violations.len() <= 500, "Should not find more violations than expected");
 
-    println!(
-        "✅ Large codebase test: {} files processed in {}ms",
-        100,
-        duration.as_millis()
-    );
+    println!("✅ Large codebase test: {} files processed in {}ms", 100, duration.as_millis());
 }
 
 #[test]
@@ -147,12 +137,7 @@ fn test_pattern_matching_performance() {
     let matching_start = Instant::now();
 
     // Test pattern matching for each language
-    for language in [
-        Language::Elixir,
-        Language::JavaScript,
-        Language::Python,
-        Language::Rust,
-    ] {
+    for language in [Language::Elixir, Language::JavaScript, Language::Python, Language::Rust] {
         let patterns = registry.get_patterns_for_language(&language);
 
         for pattern in patterns {
@@ -282,10 +267,7 @@ fn test_memory_usage_with_large_diffs() {
         );
     }
 
-    println!(
-        "✅ Memory test: Max memory increase was {}MB",
-        max_memory_increase
-    );
+    println!("✅ Memory test: Max memory increase was {}MB", max_memory_increase);
 }
 
 #[test]
@@ -329,10 +311,7 @@ fn test_concurrent_review_performance() {
         assert!(result.is_ok(), "Concurrent review {} should succeed", i);
     }
 
-    println!(
-        "✅ Concurrent review test: 5 threads completed in {}ms",
-        duration.as_millis()
-    );
+    println!("✅ Concurrent review test: 5 threads completed in {}ms", duration.as_millis());
 }
 
 // Helper functions
@@ -364,11 +343,7 @@ fn create_large_git_diff(num_files: usize, violations_per_file: usize) -> GitDif
             });
         }
 
-        files.push(FileDiff {
-            path: file_path,
-            added_lines,
-            removed_lines: vec![],
-        });
+        files.push(FileDiff { path: file_path, added_lines, removed_lines: vec![] });
     }
 
     GitDiff { files }

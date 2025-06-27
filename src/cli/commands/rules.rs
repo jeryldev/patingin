@@ -128,10 +128,7 @@ pub async fn run(args: RulesArgs) -> Result<()> {
         registry.search_patterns(query)
     } else {
         // Get rules for target languages
-        target_languages
-            .iter()
-            .flat_map(|lang| registry.get_patterns_for_language(lang))
-            .collect()
+        target_languages.iter().flat_map(|lang| registry.get_patterns_for_language(lang)).collect()
     };
 
     // Show organized rule listing
@@ -241,11 +238,7 @@ fn show_rule_detail(
         }
         println!(
             "Claude Code Fixable: {}",
-            if rule.claude_code_fixable {
-                "Yes".green()
-            } else {
-                "No".red()
-            }
+            if rule.claude_code_fixable { "Yes".green() } else { "No".red() }
         );
 
         if !rule.examples.is_empty() {
@@ -302,11 +295,7 @@ fn handle_add_rule(args: &RulesArgs) -> Result<()> {
         .filter(|c| c.is_alphanumeric() || *c == '_')
         .collect::<String>();
 
-    let pattern = description
-        .split_whitespace()
-        .last()
-        .unwrap_or("TODO")
-        .to_string();
+    let pattern = description.split_whitespace().last().unwrap_or("TODO").to_string();
 
     let custom_rule = CustomRule {
         id: rule_id.clone(),
@@ -460,17 +449,11 @@ fn show_organized_rules(
             println!("📋 Rules for Your Project\n");
 
             // Show project information
-            println!(
-                "📁 Project: {}",
-                ProjectDetector::describe_project(info).bold()
-            );
+            println!("📁 Project: {}", ProjectDetector::describe_project(info).bold());
             println!("📂 Path: {}", info.root_path.display().to_string().dimmed());
 
             if !info.package_files.is_empty() {
-                println!(
-                    "📦 Package files: {}",
-                    info.package_files.join(", ").dimmed()
-                );
+                println!("📦 Package files: {}", info.package_files.join(", ").dimmed());
             }
 
             println!();
@@ -484,10 +467,7 @@ fn show_organized_rules(
     // Group rules by language
     let mut rules_by_language: HashMap<Language, Vec<&crate::core::AntiPattern>> = HashMap::new();
     for rule in rules {
-        rules_by_language
-            .entry(rule.language.clone())
-            .or_default()
-            .push(rule);
+        rules_by_language.entry(rule.language.clone()).or_default().push(rule);
     }
 
     // Show rules grouped by language
@@ -498,18 +478,11 @@ fn show_organized_rules(
             }
 
             let (emoji, name) = get_language_display_info(language);
-            let critical_count = lang_rules
-                .iter()
-                .filter(|p| p.severity == Severity::Critical)
-                .count();
-            let major_count = lang_rules
-                .iter()
-                .filter(|p| p.severity == Severity::Major)
-                .count();
-            let warning_count = lang_rules
-                .iter()
-                .filter(|p| p.severity == Severity::Warning)
-                .count();
+            let critical_count =
+                lang_rules.iter().filter(|p| p.severity == Severity::Critical).count();
+            let major_count = lang_rules.iter().filter(|p| p.severity == Severity::Major).count();
+            let warning_count =
+                lang_rules.iter().filter(|p| p.severity == Severity::Warning).count();
 
             println!("{} {} ({} rules)", emoji, name.bold(), lang_rules.len());
 
@@ -545,14 +518,8 @@ fn show_organized_rules(
     println!("Total: {total_rules} rules across {total_languages} languages");
 
     if !args.global && !args.project && project_info.is_some() {
-        println!(
-            "\n💡 Use {} to see rules for all languages",
-            "--global".cyan()
-        );
-        println!(
-            "💡 Use {} to see project-specific custom rules",
-            "--project".cyan()
-        );
+        println!("\n💡 Use {} to see rules for all languages", "--global".cyan());
+        println!("💡 Use {} to see project-specific custom rules", "--project".cyan());
     }
 
     println!(
@@ -564,18 +531,9 @@ fn show_organized_rules(
 }
 
 fn count_patterns_by_severity(patterns: &[&crate::core::AntiPattern]) -> (usize, usize, usize) {
-    let critical_count = patterns
-        .iter()
-        .filter(|p| p.severity == Severity::Critical)
-        .count();
-    let major_count = patterns
-        .iter()
-        .filter(|p| p.severity == Severity::Major)
-        .count();
-    let warning_count = patterns
-        .iter()
-        .filter(|p| p.severity == Severity::Warning)
-        .count();
+    let critical_count = patterns.iter().filter(|p| p.severity == Severity::Critical).count();
+    let major_count = patterns.iter().filter(|p| p.severity == Severity::Major).count();
+    let warning_count = patterns.iter().filter(|p| p.severity == Severity::Warning).count();
     (critical_count, major_count, warning_count)
 }
 
@@ -634,10 +592,7 @@ mod rules_command_tests {
 
         let result = get_language_from_args(&args);
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("exactly one language"));
+        assert!(result.unwrap_err().to_string().contains("exactly one language"));
     }
 
     #[tokio::test]
@@ -646,10 +601,7 @@ mod rules_command_tests {
 
         let result = get_language_from_args(&args);
         assert!(result.is_err());
-        assert!(result
-            .unwrap_err()
-            .to_string()
-            .contains("exactly one language"));
+        assert!(result.unwrap_err().to_string().contains("exactly one language"));
     }
 
     #[tokio::test]
@@ -692,9 +644,7 @@ mod rules_command_tests {
                 language: Language::Elixir,
                 severity: Severity::Critical,
                 description: "Critical".to_string(),
-                detection_method: DetectionMethod::Regex {
-                    pattern: "test".to_string(),
-                },
+                detection_method: DetectionMethod::Regex { pattern: "test".to_string() },
                 fix_suggestion: "Fix".to_string(),
                 source_url: None,
                 claude_code_fixable: false,
@@ -708,9 +658,7 @@ mod rules_command_tests {
                 language: Language::Elixir,
                 severity: Severity::Major,
                 description: "Major".to_string(),
-                detection_method: DetectionMethod::Regex {
-                    pattern: "test".to_string(),
-                },
+                detection_method: DetectionMethod::Regex { pattern: "test".to_string() },
                 fix_suggestion: "Fix".to_string(),
                 source_url: None,
                 claude_code_fixable: false,
@@ -724,9 +672,7 @@ mod rules_command_tests {
                 language: Language::Elixir,
                 severity: Severity::Warning,
                 description: "Warning".to_string(),
-                detection_method: DetectionMethod::Regex {
-                    pattern: "test".to_string(),
-                },
+                detection_method: DetectionMethod::Regex { pattern: "test".to_string() },
                 fix_suggestion: "Fix".to_string(),
                 source_url: None,
                 claude_code_fixable: false,

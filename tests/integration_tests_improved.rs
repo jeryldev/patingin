@@ -22,18 +22,9 @@ async fn test_real_project_violation_detection() -> Result<()> {
     let project_root = env::current_dir()?;
 
     // Ensure we're in the patingin project
-    assert!(
-        project_root.join("Cargo.toml").exists(),
-        "Should be in patingin project directory"
-    );
-    assert!(
-        project_root.join("src").exists(),
-        "Should have src directory"
-    );
-    assert!(
-        project_root.join("test_files").exists(),
-        "Should have test_files directory"
-    );
+    assert!(project_root.join("Cargo.toml").exists(), "Should be in patingin project directory");
+    assert!(project_root.join("src").exists(), "Should have src directory");
+    assert!(project_root.join("test_files").exists(), "Should have test_files directory");
 
     // Create a commit with a new violation file to test git diff
     let test_file = project_root.join("test_files").join("new_violations.ex");
@@ -75,38 +66,20 @@ end
     let review_result = review_engine.review_git_diff(&parsed_diff)?;
 
     // Should detect violations in our new file
-    assert!(
-        !review_result.violations.is_empty(),
-        "Should detect violations in new test file"
-    );
+    assert!(!review_result.violations.is_empty(), "Should detect violations in new test file");
 
     // Verify we found the specific violations we expect
-    let atom_violations: Vec<_> = review_result
-        .violations
-        .iter()
-        .filter(|v| v.rule.id == "dynamic_atom_creation")
-        .collect();
-    assert!(
-        !atom_violations.is_empty(),
-        "Should detect String.to_atom violation"
-    );
+    let atom_violations: Vec<_> =
+        review_result.violations.iter().filter(|v| v.rule.id == "dynamic_atom_creation").collect();
+    assert!(!atom_violations.is_empty(), "Should detect String.to_atom violation");
 
-    let param_violations: Vec<_> = review_result
-        .violations
-        .iter()
-        .filter(|v| v.rule.id == "long_parameter_list")
-        .collect();
-    assert!(
-        !param_violations.is_empty(),
-        "Should detect long parameter list violation"
-    );
+    let param_violations: Vec<_> =
+        review_result.violations.iter().filter(|v| v.rule.id == "long_parameter_list").collect();
+    assert!(!param_violations.is_empty(), "Should detect long parameter list violation");
 
     // Clean up - remove the test file and reset git
     fs::remove_file(&test_file)?;
-    Command::new("git")
-        .args(&["reset", "--hard", "HEAD~1"])
-        .current_dir(&project_root)
-        .output()?;
+    Command::new("git").args(&["reset", "--hard", "HEAD~1"]).current_dir(&project_root).output()?;
 
     Ok(())
 }
@@ -167,11 +140,7 @@ async fn test_setup_command_in_real_project() -> Result<()> {
 #[tokio::test]
 async fn test_custom_rules_with_project_files() -> Result<()> {
     let project_root = env::current_dir()?;
-    let project_name = project_root
-        .file_name()
-        .unwrap()
-        .to_string_lossy()
-        .to_string();
+    let project_name = project_root.file_name().unwrap().to_string_lossy().to_string();
 
     // Add a custom rule for this project
     let custom_rules_manager = CustomRulesManager::new();
@@ -210,22 +179,13 @@ async fn test_multi_language_project_detection() -> Result<()> {
     let _review_engine = ReviewEngine::new();
 
     // Check that we can detect both Rust (src/) and Elixir (test_files/) in our project
+    assert!(project_root.join("src").join("main.rs").exists(), "Should have Rust files");
     assert!(
-        project_root.join("src").join("main.rs").exists(),
-        "Should have Rust files"
-    );
-    assert!(
-        project_root
-            .join("test_files")
-            .join("elixir_violations.ex")
-            .exists(),
+        project_root.join("test_files").join("elixir_violations.ex").exists(),
         "Should have Elixir test files"
     );
     assert!(
-        project_root
-            .join("test_files")
-            .join("javascript_violations.js")
-            .exists(),
+        project_root.join("test_files").join("javascript_violations.js").exists(),
         "Should have JavaScript test files"
     );
 
