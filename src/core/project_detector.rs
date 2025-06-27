@@ -295,7 +295,7 @@ impl ProjectDetector {
             project_info
                 .languages
                 .iter()
-                .map(|l| format!("{:?}", l).to_lowercase())
+                .map(|l| format!("{l:?}").to_lowercase())
                 .collect::<Vec<_>>()
                 .join(", ")
         };

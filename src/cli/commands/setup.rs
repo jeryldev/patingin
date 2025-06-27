@@ -47,7 +47,7 @@ pub async fn run() -> Result<()> {
                 let lang_names: Vec<String> = project_info
                     .languages
                     .iter()
-                    .map(|l| format!("{:?}", l))
+                    .map(|l| format!("{l:?}"))
                     .collect();
                 println!("  🔤 Languages: {}", lang_names.join(", ").cyan());
             }
@@ -262,18 +262,17 @@ pub async fn run() -> Result<()> {
 
     if checks_passed == total_checks && warnings == 0 {
         println!("{} Environment is fully ready!", "🎉".green().bold());
-        println!("  All {} checks passed with no warnings", checks_passed);
+        println!("  All {checks_passed} checks passed with no warnings");
     } else if checks_passed == total_checks {
         println!(
             "{} Environment is ready with minor warnings",
             "✅".green().bold()
         );
-        println!("  {} checks passed, {} warnings", checks_passed, warnings);
+        println!("  {checks_passed} checks passed, {warnings} warnings");
     } else {
         println!("{} Environment needs attention", "⚠️".yellow().bold());
         println!(
-            "  {}/{} checks passed ({:.0}%), {} warnings",
-            checks_passed, total_checks, success_rate, warnings
+            "  {checks_passed}/{total_checks} checks passed ({success_rate:.0}%) with {warnings} warnings"
         );
     }
 

@@ -330,17 +330,17 @@ fn output_human_readable_results(
 
     println!("📊 Summary: {} violations", violations.len());
     if critical_count > 0 {
-        println!("   🔴 Critical: {}", critical_count);
+        println!("   🔴 Critical: {critical_count}");
     }
     if major_count > 0 {
-        println!("   🟡 Major: {}", major_count);
+        println!("   🟡 Major: {major_count}");
     }
     if warning_count > 0 {
-        println!("   🔵 Warning: {}", warning_count);
+        println!("   🔵 Warning: {warning_count}");
     }
 
     if auto_fixable_count > 0 {
-        println!("   ✨ Auto-fixable: {}", auto_fixable_count);
+        println!("   ✨ Auto-fixable: {auto_fixable_count}");
 
         if !args.fix && !args.auto_fix && !args.suggest {
             println!("\n💡 Use {} to see suggested fixes", "--suggest".cyan());
@@ -512,7 +512,7 @@ fn create_claude_query(violations: &[crate::core::ReviewViolation]) -> Result<St
     let languages: Vec<String> = project_info
         .languages
         .iter()
-        .map(|l| format!("{:?}", l))
+        .map(|l| format!("{l:?}"))
         .collect();
     let languages_str = if languages.is_empty() {
         "Unknown".to_string()
@@ -567,7 +567,7 @@ fn create_claude_query(violations: &[crate::core::ReviewViolation]) -> Result<St
             // Show context before
             for (i, line) in violation.context_before.iter().enumerate() {
                 let line_num = context_start + i;
-                query.push_str(&format!("   {} │ {}\n", line_num, line));
+                query.push_str(&format!("   {line_num} │ {line}\n"));
             }
 
             // Show the violation line
@@ -579,7 +579,7 @@ fn create_claude_query(violations: &[crate::core::ReviewViolation]) -> Result<St
             // Show context after
             for (i, line) in violation.context_after.iter().enumerate() {
                 let line_num = violation.line_number + 1 + i;
-                query.push_str(&format!("   {} │ {}\n", line_num, line));
+                query.push_str(&format!("   {line_num} │ {line}\n"));
             }
 
             query.push_str(&format!("   Fix: {}\n\n", violation.fix_suggestion));

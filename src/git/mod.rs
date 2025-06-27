@@ -160,7 +160,7 @@ impl GitDiffParser {
         match scope {
             DiffScope::Unstaged => "git diff".to_string(),
             DiffScope::Staged => "git diff --cached".to_string(),
-            DiffScope::SinceCommit(reference) => format!("git diff {}", reference),
+            DiffScope::SinceCommit(reference) => format!("git diff {reference}"),
         }
     }
 

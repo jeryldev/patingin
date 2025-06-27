@@ -82,7 +82,7 @@ impl ClaudeCodeIntegration {
             Err(e) => Ok(FixResult {
                 success: false,
                 fixed_code: None,
-                error_message: Some(format!("Claude Code execution failed: {}", e)),
+                error_message: Some(format!("Claude Code execution failed: {e}")),
                 confidence: 0.0,
             }),
         }

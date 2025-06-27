@@ -104,8 +104,8 @@ impl PatternRegistry {
                     }
                     Err(e) => {
                         eprintln!(
-                            "Warning: Failed to compile regex for pattern {}: {}",
-                            pattern.id, e
+                            "Warning: Failed to compile regex for pattern {}: {e}",
+                            pattern.id
                         );
                     }
                 }

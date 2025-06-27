@@ -152,7 +152,7 @@ impl FixEngine {
                     .claude_integration
                     .apply_fixes_to_file(&file_path, &fixes)
                 {
-                    eprintln!("❌ Failed to apply fixes to {}: {}", file_path, e);
+                    eprintln!("❌ Failed to apply fixes to {file_path}: {e}");
                 } else {
                     files_modified.push(file_path);
                 }

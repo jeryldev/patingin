@@ -45,7 +45,7 @@ impl Default for CustomRulesManager {
 impl CustomRulesManager {
     pub fn new() -> Self {
         let home_dir = std::env::var("HOME").unwrap_or_else(|_| ".".to_string());
-        let config_path = format!("{}/.config/patingin/rules.yml", home_dir);
+        let config_path = format!("{home_dir}/.config/patingin/rules.yml");
         Self { config_path }
     }
 

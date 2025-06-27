@@ -109,7 +109,7 @@ pub async fn run(args: RulesArgs) -> Result<()> {
         let custom_patterns = manager.get_project_rules(&project_name)?;
 
         if custom_patterns.is_empty() {
-            println!("📋 No custom rules found for project '{}'", project_name);
+            println!("📋 No custom rules found for project '{project_name}'");
             println!("💡 Add custom rules with: patingin rules --add --project --<language> \"rule description\"");
             return Ok(());
         }
@@ -237,7 +237,7 @@ fn show_rule_detail(
         println!("Description: {}", rule.description);
         println!("Fix: {}", rule.fix_suggestion);
         if let Some(url) = &rule.source_url {
-            println!("Source: {}", url);
+            println!("Source: {url}");
         }
         println!(
             "Claude Code Fixable: {}",
@@ -257,7 +257,7 @@ fn show_rule_detail(
             }
         }
     } else {
-        println!("Rule '{}' not found", rule_id);
+        println!("Rule '{rule_id}' not found");
     }
     Ok(())
 }
@@ -288,9 +288,9 @@ fn handle_add_rule(args: &RulesArgs) -> Result<()> {
     };
 
     // Create interactive prompt for additional rule details
-    println!("📋 Adding custom rule to project: {}", project_name);
-    println!("🏷️  Language: {:?}", language);
-    println!("📝 Description: {}", description);
+    println!("📋 Adding custom rule to project: {project_name}");
+    println!("🏷️  Language: {language:?}");
+    println!("📝 Description: {description}");
     println!();
 
     // For now, create a simple regex pattern based on description
@@ -321,7 +321,7 @@ fn handle_add_rule(args: &RulesArgs) -> Result<()> {
     let manager = CustomRulesManager::new();
     manager.add_project_rule(&project_name, &project_path, language, custom_rule)?;
 
-    println!("✅ Successfully added custom rule: {}", rule_id);
+    println!("✅ Successfully added custom rule: {rule_id}");
     println!("📁 Saved to: ~/.config/patingin/rules.yml");
     println!("💡 You can edit the pattern and settings in the config file");
 
@@ -361,12 +361,11 @@ fn handle_remove_rule(rule_id: &str) -> Result<()> {
     let removed = manager.remove_project_rule(&project_name, rule_id)?;
 
     if removed {
-        println!("✅ Successfully removed custom rule: {}", rule_id);
+        println!("✅ Successfully removed custom rule: {rule_id}");
         println!("📁 Updated: ~/.config/patingin/rules.yml");
     } else {
         println!(
-            "❌ Rule '{}' not found in project '{}'",
-            rule_id, project_name
+            "❌ Rule '{rule_id}' not found in project '{project_name}'"
         );
         println!("💡 Use 'patingin rules --project' to see available custom rules");
     }
@@ -375,7 +374,7 @@ fn handle_remove_rule(rule_id: &str) -> Result<()> {
 }
 
 fn handle_edit_rule(rule_id: &str) -> Result<()> {
-    println!("Edit rule '{}' functionality not yet implemented", rule_id);
+    println!("Edit rule '{rule_id}' functionality not yet implemented");
     // TODO: Implement rule editing in ~/.config/patingin/rules.yml
     Ok(())
 }
@@ -385,7 +384,7 @@ fn show_custom_rules(
     project_name: &str,
     target_languages: &[Language],
 ) -> Result<()> {
-    println!("📋 Custom Rules for Project: {}", project_name);
+    println!("📋 Custom Rules for Project: {project_name}");
     println!();
 
     let mut total_rules = 0;
@@ -402,13 +401,13 @@ fn show_custom_rules(
         let (emoji, name) = get_language_display_info(language);
         println!("{} {} ({} rules)", emoji, name, patterns.len());
         if critical_count > 0 {
-            println!("  🔴 Critical: {}", critical_count);
+            println!("  🔴 Critical: {critical_count}");
         }
         if major_count > 0 {
-            println!("  🟡 Major: {}", major_count);
+            println!("  🟡 Major: {major_count}");
         }
         if warning_count > 0 {
-            println!("  🔵 Warning: {}", warning_count);
+            println!("  🔵 Warning: {warning_count}");
         }
 
         // Show all rules
@@ -420,14 +419,14 @@ fn show_custom_rules(
             };
             let rule_name = pattern.name.clone();
             let rule_id = pattern.id.strip_prefix("custom_").unwrap_or(&pattern.id);
-            println!("    {} {} ({})", severity_icon, rule_name, rule_id);
+            println!("    {severity_icon} {rule_name} ({rule_id})");
         }
 
         // Show all rules - no truncation
         println!();
     }
 
-    println!("Total: {} custom rules", total_rules);
+    println!("Total: {total_rules} custom rules");
     println!();
     println!("💡 Use --detail <rule_id> to see detailed info about a specific rule");
     println!("💡 Use 'remove <rule_id>' to remove a custom rule");
@@ -546,8 +545,7 @@ fn show_organized_rules(
     let total_languages = rules_by_language.len();
 
     println!(
-        "Total: {} rules across {} languages",
-        total_rules, total_languages
+        "Total: {total_rules} rules across {total_languages} languages"
     );
 
     if !args.global && !args.project && project_info.is_some() {
