@@ -67,7 +67,7 @@ impl ReviewEngine {
 
         // Load custom rules for the project
         if let Err(e) = registry.load_custom_rules(project_name) {
-            eprintln!("Warning: Failed to load custom rules for {}: {}", project_name, e);
+            eprintln!("Warning: Failed to load custom rules for {project_name}: {e}");
         }
 
         Self { registry }
