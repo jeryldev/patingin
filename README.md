@@ -247,8 +247,6 @@ Patingin helps **detect** security anti-patterns but:
 - Only analyzes code locally (no data sent to external services)
 - Claude Code integration is opt-in and requires separate installation
 
-Report security issues to: <security@patingin.dev>
-
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) for details.

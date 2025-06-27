@@ -204,7 +204,6 @@ patingin setup              # Environment diagnostics
 
 - **Contributing**: See [CONTRIBUTING.md](../CONTRIBUTING.md) for development guidelines
 - **Code of Conduct**: See [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)
-- **Security**: Report security issues to <security@patingin.dev>
 
 ---
 
