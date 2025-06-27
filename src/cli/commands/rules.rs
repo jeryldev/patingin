@@ -364,9 +364,7 @@ fn handle_remove_rule(rule_id: &str) -> Result<()> {
         println!("✅ Successfully removed custom rule: {rule_id}");
         println!("📁 Updated: ~/.config/patingin/rules.yml");
     } else {
-        println!(
-            "❌ Rule '{rule_id}' not found in project '{project_name}'"
-        );
+        println!("❌ Rule '{rule_id}' not found in project '{project_name}'");
         println!("💡 Use 'patingin rules --project' to see available custom rules");
     }
 
@@ -544,9 +542,7 @@ fn show_organized_rules(
     let total_rules = rules.len();
     let total_languages = rules_by_language.len();
 
-    println!(
-        "Total: {total_rules} rules across {total_languages} languages"
-    );
+    println!("Total: {total_rules} rules across {total_languages} languages");
 
     if !args.global && !args.project && project_info.is_some() {
         println!(
