@@ -5,10 +5,12 @@ Welcome to the comprehensive documentation for Patingin - the all-seeing code gu
 ## Quick Navigation
 
 ### Getting Started
+
 - **[Installation Guide](setup.md)** - Complete setup instructions for all platforms
 - **[Main README](../README.md)** - Project overview and quick start
 
 ### Core Features
+
 - **[Commands Reference](commands.md)** - Detailed guide to all CLI commands
 - **[Workflows Guide](workflows.md)** - Common development workflows and examples
 - **[Rules Management](rules.md)** - Managing and customizing anti-pattern rules
@@ -19,19 +21,23 @@ Welcome to the comprehensive documentation for Patingin - the all-seeing code gu
 ## Documentation Overview
 
 ### 📚 [Commands Reference](commands.md)
+
 Comprehensive guide to all Patingin commands, options, and usage patterns.
 
 **Covers:**
+
 - `patingin review` - Git-aware code analysis
-- `patingin rules` - Rule management and customization  
+- `patingin rules` - Rule management and customization
 - `patingin setup` - Environment diagnostics
 - All command options, flags, and examples
 - Exit codes and error handling
 
-### 🔧 [Workflows Guide](workflows.md) 
+### 🔧 [Workflows Guide](workflows.md)
+
 Common development workflows and integration patterns.
 
 **Covers:**
+
 - Daily development workflows
 - Feature branch workflows
 - Team collaboration patterns
@@ -40,9 +46,11 @@ Common development workflows and integration patterns.
 - Custom workflow patterns
 
 ### 🤖 [AI Integration Guide](ai-integration.md)
+
 Comprehensive guide to AI-powered code fixing with Claude Code.
 
 **Covers:**
+
 - Claude Code CLI setup and authentication
 - Interactive vs batch fixing modes
 - Confidence scoring and validation
@@ -51,9 +59,11 @@ Comprehensive guide to AI-powered code fixing with Claude Code.
 - Troubleshooting AI features
 
 ### 📋 [Rules Management Guide](rules.md)
+
 Managing, customizing, and extending anti-pattern rules.
 
 **Covers:**
+
 - 47 built-in rules across 7 languages
 - Creating custom project-specific rules
 - Team rule management and sharing
@@ -62,9 +72,11 @@ Managing, customizing, and extending anti-pattern rules.
 - Rule lifecycle and best practices
 
 ### ⚙️ [Installation and Setup Guide](setup.md)
+
 Complete installation, configuration, and integration guide.
 
 **Covers:**
+
 - Multiple installation methods
 - System requirements and dependencies
 - IDE/editor integration
@@ -78,6 +90,7 @@ Complete installation, configuration, and integration guide.
 ## Quick Reference
 
 ### Essential Commands
+
 ```bash
 # Quick code review
 patingin review
@@ -96,6 +109,7 @@ patingin setup
 ```
 
 ### Key Features
+
 - **🎯 Git-aware**: Only analyzes your changes, not entire codebases
 - **⚡ Fast**: <100ms startup, O(1) rule lookup, pre-compiled patterns
 - **🤖 AI-powered**: Claude Code integration for interactive fixes
@@ -104,33 +118,37 @@ patingin setup
 - **👥 Team-friendly**: Shared configurations and collaborative workflows
 
 ### Supported Languages
-| Language | Rules | Interactive | Examples |
-|----------|-------|----------|----------|
-| Elixir | 13 | ✅ | Dynamic atoms, GenServer patterns |
-| JavaScript | 8 | ✅ | Console logs, eval usage, promises |
-| TypeScript | 3 | ✅ | Type safety, async patterns |
-| Python | 8 | ✅ | Import patterns, exception handling |
-| Rust | 6 | ✅ | Memory safety, error handling |
-| Zig | 3 | ✅ | Memory management, safety |
-| SQL | 7 | ✅ | Injection prevention, optimization |
+
+| Language   | Rules | Interactive | Examples                            |
+| ---------- | ----- | ----------- | ----------------------------------- |
+| Elixir     | 13    | ✅          | Dynamic atoms, GenServer patterns   |
+| JavaScript | 8     | ✅          | Console logs, eval usage, promises  |
+| TypeScript | 3     | ✅          | Type safety, async patterns         |
+| Python     | 8     | ✅          | Import patterns, exception handling |
+| Rust       | 6     | ✅          | Memory safety, error handling       |
+| Zig        | 3     | ✅          | Memory management, safety           |
+| SQL        | 7     | ✅          | Injection prevention, optimization  |
 
 ---
 
 ## Common Use Cases
 
 ### For Individual Developers
+
 1. **Daily Code Review**: `patingin review` after each change
 2. **Pre-commit Validation**: `patingin review --staged` before commits
 3. **Interactive Fixing**: `patingin review --fix` for collaborative improvements
 4. **Learning Best Practices**: `patingin rules --detail <rule_id>` for education
 
 ### For Teams
+
 1. **Shared Standards**: Team rules in `.patingin.yml`
 2. **PR Quality Gates**: CI integration with violation limits
 3. **Onboarding**: Consistent code quality education
 4. **Legacy Modernization**: Gradual improvement of existing codebases
 
 ### For Organizations
+
 1. **Security Compliance**: Critical violation detection and prevention
 2. **Performance Monitoring**: Performance anti-pattern detection
 3. **Code Quality Metrics**: JSON output for dashboards and reporting
@@ -141,18 +159,21 @@ patingin setup
 ## Integration Examples
 
 ### GitHub Actions
+
 ```yaml
 - name: Code Quality Check
   run: patingin review --since origin/main --json > violations.json
 ```
 
 ### Pre-commit Hook
+
 ```bash
 #!/bin/sh
 patingin review --staged --severity critical --no-color
 ```
 
 ### VS Code Task
+
 ```json
 {
   "label": "Patingin Review",
@@ -166,6 +187,7 @@ patingin review --staged --severity critical --no-color
 ## Getting Help
 
 ### Built-in Help
+
 ```bash
 patingin --help              # Main help
 patingin review --help       # Command-specific help
@@ -173,14 +195,16 @@ patingin setup              # Environment diagnostics
 ```
 
 ### Documentation
-- **GitHub Repository**: [https://github.com/your-org/patingin](https://github.com/your-org/patingin)
-- **Issue Tracker**: [Report bugs and feature requests](https://github.com/your-org/patingin/issues)
-- **Discussions**: [Community discussions and Q&A](https://github.com/your-org/patingin/discussions)
+
+- **GitHub Repository**: [https://github.com/jeryldev/patingin](https://github.com/jeryldev/patingin)
+- **Issue Tracker**: [Report bugs and feature requests](https://github.com/jeryldev/patingin/issues)
+- **Discussions**: [Community discussions and Q&A](https://github.com/jeryldev/patingin/discussions)
 
 ### Community
+
 - **Contributing**: See [CONTRIBUTING.md](../CONTRIBUTING.md) for development guidelines
 - **Code of Conduct**: See [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md)
-- **Security**: Report security issues to security@patingin.dev
+- **Security**: Report security issues to <security@patingin.dev>
 
 ---
 
@@ -197,3 +221,4 @@ patingin setup              # Environment diagnostics
 ```bash
 patingin review --fix
 ```
+

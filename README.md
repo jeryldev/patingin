@@ -11,6 +11,7 @@
 Patingin is a **git-aware code review tool** that analyzes only your changes (not entire codebases) to catch anti-patterns and suggest fixes. It integrates with **Claude Code** for intelligent interactive fixes, making code reviews faster and more consistent.
 
 ### Core Philosophy
+
 - **Analyze only what changed** - Focus on git diff, not entire projects
 - **Show exactly where problems are** - Line-by-line violations with context
 - **Fix what can be fixed** - AI-powered interactive corrections
@@ -19,9 +20,10 @@ Patingin is a **git-aware code review tool** that analyzes only your changes (no
 ## 🚀 Quick Start
 
 ### Installation
+
 ```bash
 # Install from source (requires Rust)
-git clone https://github.com/your-org/patingin.git
+git clone https://github.com/jeryldev/patingin.git
 cd patingin
 cargo install --path .
 
@@ -30,6 +32,7 @@ patingin --version
 ```
 
 ### First Review
+
 ```bash
 # Check your current changes
 patingin review
@@ -44,6 +47,7 @@ patingin review --fix
 ## 🔍 Core Commands
 
 ### `patingin review` - Analyze Changes
+
 Detect anti-patterns in your git changes with intelligent scope detection.
 
 ```bash
@@ -63,6 +67,7 @@ patingin review --language elixir
 ```
 
 ### `patingin rules` - Manage Rules
+
 Browse and customize anti-pattern rules for your projects.
 
 ```bash
@@ -82,6 +87,7 @@ patingin rules add --project --elixir "use gettext for translations"
 ```
 
 ### `patingin setup` - Environment Status
+
 Comprehensive status check of your development environment.
 
 ```bash
@@ -117,6 +123,7 @@ patingin review --fix
 ## 🔧 Example Workflows
 
 ### Daily Development
+
 ```bash
 # 1. Make changes
 vim lib/user.ex
@@ -132,6 +139,7 @@ git add . && git commit -m "Add user auth"
 ```
 
 ### Pre-commit Hook
+
 ```bash
 #!/bin/sh
 patingin review --staged --severity critical
@@ -142,6 +150,7 @@ fi
 ```
 
 ### PR Preparation
+
 ```bash
 # Review all changes for PR
 patingin review --since origin/main
@@ -162,7 +171,7 @@ patingin review --json > violations.json
     💡 Fix: Use String.to_existing_atom() or explicit mapping
     ✨ Interactively fixable with Claude Code
 
-📁 assets/js/app.js  
+📁 assets/js/app.js
   🟡 MAJOR Console.log in Production (console_log_production)
     Line 15: console.log("Debug info:", data)
     💡 Fix: Remove console statements or use proper logging
@@ -175,18 +184,21 @@ patingin review --json > violations.json
 ## 🏗️ Architecture
 
 ### High-Performance Design
+
 - **Fast startup** - Embedded rules, minimal I/O
-- **Efficient rule lookup** - HashMap-based registry  
+- **Efficient rule lookup** - HashMap-based registry
 - **Pre-compiled regex** - Reduced compilation overhead
 - **Smart caching** - Language detection and project info
 
 ### Git Integration
+
 - **Default scope**: Changes since last commit (`git diff HEAD`)
 - **Flexible overrides**: `--staged`, `--uncommitted`, `--since <ref>`
 - **Line-level analysis**: Only check changed/added lines
 - **Branch agnostic**: Works with any workflow
 
 ### Storage Strategy
+
 - **Built-in rules**: Embedded in binary (51 rules)
 - **Custom rules**: `~/.config/patingin/rules.yml`
 - **Smart project detection**: Git root → package files → directory
@@ -217,9 +229,10 @@ cargo test --release performance
 ```
 
 **Test Coverage**: 130+ tests
+
 - Unit tests for all core modules
 - CLI command integration tests
-- End-to-end workflow tests  
+- End-to-end workflow tests
 - AI integration validation
 
 ## 🤝 Contributing
@@ -229,11 +242,12 @@ This project is currently in early development and not yet ready for external co
 ## 🔒 Security
 
 Patingin helps **detect** security anti-patterns but:
+
 - Never modifies files without explicit user confirmation
 - Only analyzes code locally (no data sent to external services)
 - Claude Code integration is opt-in and requires separate installation
 
-Report security issues to: security@patingin.dev
+Report security issues to: <security@patingin.dev>
 
 ## 📄 License
 
@@ -253,3 +267,4 @@ MIT License - see [LICENSE](LICENSE) for details.
 ```bash
 patingin review --fix
 ```
+
