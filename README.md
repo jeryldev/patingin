@@ -239,14 +239,6 @@ cargo test --release performance
 
 This project is currently in early development and not yet ready for external contributions. Feel free to open issues for suggestions and feedback.
 
-## 🔒 Security
-
-Patingin helps **detect** security anti-patterns but:
-
-- Never modifies files without explicit user confirmation
-- Only analyzes code locally (no data sent to external services)
-- Claude Code integration is opt-in and requires separate installation
-
 ## 📄 License
 
 MIT License - see [LICENSE](LICENSE) for details.
