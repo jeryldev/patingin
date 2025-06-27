@@ -24,7 +24,7 @@ Patingin includes carefully curated rules for common anti-patterns.
 - **Pattern**: `String.to_atom(.*)`
 - **Issue**: Creating atoms from uncontrolled input can exhaust atom table
 - **Fix**: Use `String.to_existing_atom/1` or explicit atom mapping
-- **Auto-fixable**: ✅ Yes
+- **Interactively fixable**: ✅ Yes
 
 ```elixir
 # Bad
@@ -44,13 +44,13 @@ end
 - **Pattern**: `cast\(.*,\s*:all\)`
 - **Issue**: Accepting all parameters can lead to security vulnerabilities
 - **Fix**: Explicitly list allowed fields
-- **Auto-fixable**: ❌ No (requires domain knowledge)
+- **Interactively fixable**: ❌ No (requires domain knowledge)
 
 **`sql_injection_ecto`** - SQL Injection in Ecto
 - **Pattern**: `query\(.*#\{.*\}`
 - **Issue**: String interpolation in queries enables SQL injection
 - **Fix**: Use parameterized queries or `Ecto.Query` macros
-- **Auto-fixable**: ❌ No (context-dependent)
+- **Interactively fixable**: ❌ No (context-dependent)
 
 #### Major Severity
 
@@ -58,25 +58,25 @@ end
 - **Pattern**: `def\s+\w+\([^)]*,[^)]*,[^)]*,[^)]*,[^)]*,`
 - **Issue**: Functions with many parameters are hard to use and maintain
 - **Fix**: Group related parameters into structs or maps
-- **Auto-fixable**: ❌ No (requires design decisions)
+- **Interactively fixable**: ❌ No (requires design decisions)
 
 **`structs_32_plus_fields`** - Large Structs
 - **Pattern**: Complex pattern detecting 32+ fields
 - **Issue**: Structs with 32+ fields cause VM performance issues
 - **Fix**: Split into smaller, focused structs
-- **Auto-fixable**: ❌ No (requires architectural changes)
+- **Interactively fixable**: ❌ No (requires architectural changes)
 
 **`namespace_trespassing`** - Namespace Violations
 - **Pattern**: `defmodule\s+(?!YourApp\.)\w+`
 - **Issue**: Defining modules outside your application namespace
 - **Fix**: Use proper namespace prefix
-- **Auto-fixable**: ✅ Yes
+- **Interactively fixable**: ✅ Yes
 
 **`ecto_schemas_in_migrations`** - Schemas in Migrations
 - **Pattern**: `YourApp\.[A-Z]\w*` in migration files
 - **Issue**: Using application schemas in migrations creates coupling
 - **Fix**: Use raw SQL or embedded schemas
-- **Auto-fixable**: ❌ No (requires migration strategy)
+- **Interactively fixable**: ❌ No (requires migration strategy)
 
 #### Warning Severity
 
@@ -84,13 +84,13 @@ end
 - **Pattern**: Lines with >70% comments
 - **Issue**: Over-commenting can indicate unclear code
 - **Fix**: Improve code clarity, reduce redundant comments
-- **Auto-fixable**: ❌ No (subjective)
+- **Interactively fixable**: ❌ No (subjective)
 
 **`complex_else_in_with`** - Complex with-else
 - **Pattern**: `with.*else.*` with complex else blocks
 - **Issue**: Complex else handling defeats with's purpose
 - **Fix**: Simplify or use case statements
-- **Auto-fixable**: ❌ No (requires logic restructuring)
+- **Interactively fixable**: ❌ No (requires logic restructuring)
 
 ### JavaScript Rules (8 rules)
 
@@ -100,13 +100,13 @@ end
 - **Pattern**: `\\beval\\s*\\(`
 - **Issue**: `eval()` can execute arbitrary code, major security risk
 - **Fix**: Use `JSON.parse()` for data, avoid dynamic code execution
-- **Auto-fixable**: ❌ No (security-critical, needs manual review)
+- **Interactively fixable**: ❌ No (security-critical, needs manual review)
 
 **`unhandled_promise`** - Unhandled Promise Rejection
 - **Pattern**: `\.then\\s*\\([^)]*\\)\\s*[^.c]`
 - **Issue**: Promises without catch handlers can cause silent failures
 - **Fix**: Add `.catch()` handler
-- **Auto-fixable**: ✅ Yes
+- **Interactively fixable**: ✅ Yes
 
 #### Major Severity
 
@@ -114,19 +114,19 @@ end
 - **Pattern**: `console\\.(log|warn|error|info|debug)\\s*\\(`
 - **Issue**: Console statements should not be in production code
 - **Fix**: Remove or replace with proper logging framework
-- **Auto-fixable**: ✅ Yes
+- **Interactively fixable**: ✅ Yes
 
 **`var_declaration`** - Var Declaration
 - **Pattern**: `\\bvar\\s+\\w+`
 - **Issue**: `var` has function scope and hoisting issues
 - **Fix**: Use `const` or `let` with block scope
-- **Auto-fixable**: ✅ Yes
+- **Interactively fixable**: ✅ Yes
 
 **`double_equals`** - Loose Equality
 - **Pattern**: `[^=!]==[^=]|[^=!]!=[^=]`
 - **Issue**: `==` and `!=` perform type coercion
 - **Fix**: Use `===` and `!==` for strict equality
-- **Auto-fixable**: ✅ Yes
+- **Interactively fixable**: ✅ Yes
 
 ### Python Rules (8 rules)
 
@@ -134,13 +134,13 @@ end
 - **Pattern**: `from\s+\w+\s+import\s+\*`
 - **Issue**: Wildcard imports pollute namespace and hide dependencies
 - **Fix**: Import specific names or use qualified imports
-- **Auto-fixable**: ❌ No (requires knowing what's used)
+- **Interactively fixable**: ❌ No (requires knowing what's used)
 
 **`bare_except`** - Bare Except Clauses
 - **Pattern**: `except:\s*$`
 - **Issue**: Catching all exceptions can hide bugs
 - **Fix**: Catch specific exception types
-- **Auto-fixable**: ❌ No (requires exception analysis)
+- **Interactively fixable**: ❌ No (requires exception analysis)
 
 ### Additional Languages
 
@@ -170,7 +170,7 @@ projects:
           severity: "warning"
           pattern: '"[^"]*"\\s*(?!\\|>\\s*gettext)'
           fix_suggestion: "Wrap string with gettext()"
-          claude_code_fixable: true
+          claude_code_interactive: true
           enabled: true
           
         - id: "team_genserver_pattern"
@@ -179,7 +179,7 @@ projects:
           severity: "major"
           pattern: "GenServer\\.call.*:sync"
           fix_suggestion: "Replace with GenServer.cast for async operation"
-          claude_code_fixable: false
+          claude_code_interactive: false
           enabled: true
       
       javascript:
@@ -189,7 +189,7 @@ projects:
           severity: "major"
           pattern: "console\\.log\\("
           fix_suggestion: "Replace with logger.debug() or logger.info()"
-          claude_code_fixable: true
+          claude_code_interactive: true
           enabled: true
 ```
 
@@ -231,7 +231,7 @@ vim ~/.config/patingin/rules.yml
 - `fix_suggestion` - How to fix the violation
 
 **Optional Fields:**
-- `claude_code_fixable` - Whether AI can auto-fix (default: `false`)
+- `claude_code_interactive` - Whether AI can provide interactive fixes (default: `false`)
 - `enabled` - Whether rule is active (default: `true`)
 - `source_url` - Documentation link
 - `examples` - Code examples
@@ -247,7 +247,7 @@ vim ~/.config/patingin/rules.yml
   severity: "critical"
   pattern: '(password|secret|key)\\s*=\\s*"[^"]+"'
   fix_suggestion: "Move to environment variables or config files"
-  claude_code_fixable: false
+  claude_code_interactive: false
   tags: ["security", "secrets"]
 ```
 
@@ -259,7 +259,7 @@ vim ~/.config/patingin/rules.yml
   severity: "warning"
   pattern: "Enum\\.(map|filter|reduce).*Enum\\.(map|filter|reduce)"
   fix_suggestion: "Use Stream for chained operations on large collections"
-  claude_code_fixable: true
+  claude_code_interactive: true
   tags: ["performance", "elixir"]
 ```
 
@@ -271,7 +271,7 @@ vim ~/.config/patingin/rules.yml
   severity: "major"
   pattern: "defmodule\\s+[A-Z]\\w*(?!.*@moduledoc)"
   fix_suggestion: "Add @moduledoc to describe module purpose"
-  claude_code_fixable: false
+  claude_code_interactive: false
   tags: ["documentation", "team"]
 ```
 
@@ -337,7 +337,7 @@ vim .patingin.yml
 git add .patingin.yml
 git commit -m "Add team code quality rules"
 
-# 3. Team members benefit automatically
+# 3. Team members benefit from shared standards
 git pull
 patingin rules  # Shows team rules
 ```

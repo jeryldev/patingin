@@ -99,7 +99,7 @@ patingin review --suggest
 # Display-only mode: shows what could be fixed
 ```
 
-#### Apply Automatic Fixes
+#### Apply Interactive Fixes
 ```bash
 patingin review --fix
 # Interactive mode: asks for confirmation before each fix
@@ -108,7 +108,7 @@ patingin review --fix
 #### Batch Apply Fixes
 ```bash
 patingin review --fix --no-confirm
-# Non-interactive mode: applies all fixes automatically
+# Batch mode: applies all fixes with interactive confirmation disabled
 ```
 
 ### Example Combinations
@@ -156,7 +156,7 @@ patingin rules [OPTIONS] [COMMAND]
 ```bash
 patingin rules
 # Shows all rules applicable to current project
-# Automatically detects project languages
+# Intelligently detects project languages
 ```
 
 #### Language-specific Rules
@@ -266,7 +266,7 @@ patingin setup
 #### Tool Integration
 - Claude Code CLI availability and version
 - Authentication status
-- Auto-fix capability
+- Interactive fix capability
 
 #### Configuration
 - Rules configuration files
@@ -298,7 +298,7 @@ patingin setup
 🤖 Claude Code Integration:
   CLI Available: ✅ v1.2.3
   Authentication: ✅ Authenticated as user@example.com
-  Auto-fix capability: ✅ Ready
+  Interactive fix capability: ✅ Ready
 
 📋 Rules Configuration:
   Global rules: 13 Elixir, 8 JavaScript  

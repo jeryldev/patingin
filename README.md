@@ -4,16 +4,16 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Tests](https://img.shields.io/badge/tests-130%20tests-brightgreen.svg)](#testing)
 
-> **Patingin** (Tagalog: "can I look?") - A lightning-fast, git-aware code review assistant for anti-pattern detection and automated fixes.
+> **Patingin** (Tagalog: "can I look?") - A lightning-fast, git-aware code review assistant for anti-pattern detection and interactive fixes.
 
 ## 🎯 What is Patingin?
 
-Patingin is a **git-aware code review tool** that analyzes only your changes (not entire codebases) to catch anti-patterns and suggest fixes. It integrates with **Claude Code** for intelligent automated fixes, making code reviews faster and more consistent.
+Patingin is a **git-aware code review tool** that analyzes only your changes (not entire codebases) to catch anti-patterns and suggest fixes. It integrates with **Claude Code** for intelligent interactive fixes, making code reviews faster and more consistent.
 
 ### Core Philosophy
 - **Analyze only what changed** - Focus on git diff, not entire projects
 - **Show exactly where problems are** - Line-by-line violations with context
-- **Fix what can be fixed** - AI-powered automatic corrections
+- **Fix what can be fixed** - AI-powered interactive corrections
 - **Works with any workflow** - No assumptions about branching strategy
 
 ## 🚀 Quick Start
@@ -90,7 +90,7 @@ patingin setup
 
 ## 🤖 AI Integration
 
-Patingin integrates with **Claude Code** for intelligent automated fixes:
+Patingin integrates with **Claude Code** for intelligent interactive fixes:
 
 ```bash
 # Preview fixes
@@ -106,13 +106,13 @@ patingin review --fix
 
 - **Elixir** (13 rules) - Dynamic atoms, GenServer patterns, Ecto security
 - **JavaScript** (8 rules) - Console logs, eval usage, promise handling
-- **TypeScript** (3 rules) - Type safety, async patterns
+- **TypeScript** (4 rules) - Type safety, async patterns
 - **Python** (9 rules) - Import patterns, exception handling
 - **Rust** (6 rules) - Memory safety, error handling
-- **Zig** (3 rules) - Memory management, safety patterns
+- **Zig** (4 rules) - Memory management, safety patterns
 - **SQL** (7 rules) - Injection prevention, query optimization
 
-**Total: 52 built-in rules + unlimited custom rules**
+**Total: 51 built-in rules + unlimited custom rules**
 
 ## 🔧 Example Workflows
 
@@ -160,13 +160,13 @@ patingin review --json > violations.json
   🔴 CRITICAL Dynamic Atom Creation (dynamic_atom_creation)
     Line 42: String.to_atom(user_input)
     💡 Fix: Use String.to_existing_atom() or explicit mapping
-    ✨ Auto-fixable with Claude Code
+    ✨ Interactively fixable with Claude Code
 
 📁 assets/js/app.js  
   🟡 MAJOR Console.log in Production (console_log_production)
     Line 15: console.log("Debug info:", data)
     💡 Fix: Remove console statements or use proper logging
-    ✨ Auto-fixable with Claude Code
+    ✨ Interactively fixable with Claude Code
 
 📊 Summary: 2 violations (1 critical, 1 major)
 💡 Use --fix to launch interactive Claude Code session

@@ -477,5 +477,5 @@ patingin setup | grep "Project size"
 
 ### Integration
 - Always use `--json` in CI/CD for structured processing
-- Use `--no-color` in automated environments
+- Use `--no-color` in non-interactive environments
 - Set appropriate exit code handling for critical violations

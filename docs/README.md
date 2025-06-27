@@ -12,7 +12,7 @@ Welcome to the comprehensive documentation for Patingin - the all-seeing code gu
 - **[Commands Reference](commands.md)** - Detailed guide to all CLI commands
 - **[Workflows Guide](workflows.md)** - Common development workflows and examples
 - **[Rules Management](rules.md)** - Managing and customizing anti-pattern rules
-- **[AI Integration](ai-integration.md)** - Claude Code setup and automated fixing
+- **[AI Integration](ai-integration.md)** - Claude Code setup and interactive fixing
 
 ---
 
@@ -98,13 +98,13 @@ patingin setup
 ### Key Features
 - **🎯 Git-aware**: Only analyzes your changes, not entire codebases
 - **⚡ Fast**: <100ms startup, O(1) rule lookup, pre-compiled patterns
-- **🤖 AI-powered**: Claude Code integration for automated fixes
+- **🤖 AI-powered**: Claude Code integration for interactive fixes
 - **🔧 Customizable**: 47 built-in rules + unlimited custom rules
 - **🌐 Multi-language**: Elixir, JavaScript, TypeScript, Python, Rust, Zig, SQL
 - **👥 Team-friendly**: Shared configurations and collaborative workflows
 
 ### Supported Languages
-| Language | Rules | Auto-fix | Examples |
+| Language | Rules | Interactive | Examples |
 |----------|-------|----------|----------|
 | Elixir | 13 | ✅ | Dynamic atoms, GenServer patterns |
 | JavaScript | 8 | ✅ | Console logs, eval usage, promises |
@@ -134,7 +134,7 @@ patingin setup
 1. **Security Compliance**: Critical violation detection and prevention
 2. **Performance Monitoring**: Performance anti-pattern detection
 3. **Code Quality Metrics**: JSON output for dashboards and reporting
-4. **Automated Remediation**: Large-scale code improvements
+4. **Interactive Remediation**: Large-scale code improvements
 
 ---
 
@@ -189,7 +189,7 @@ patingin setup              # Environment diagnostics
 1. **Start with [Setup Guide](setup.md)** - Get Patingin installed and configured
 2. **Try the [Quick Start](../README.md#quick-start)** - Run your first review
 3. **Explore [Workflows](workflows.md)** - Find patterns that fit your development style
-4. **Set up [AI Integration](ai-integration.md)** - Enable automated code fixing
+4. **Set up [AI Integration](ai-integration.md)** - Enable interactive code fixing
 5. **Customize [Rules](rules.md)** - Tailor Patingin to your team's standards
 
 **Ready to improve your code quality?** Start with the installation guide and experience focused, intelligent code review.

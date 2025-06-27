@@ -4,7 +4,7 @@ Comprehensive guide to Patingin's AI-powered code fixing with Claude Code integr
 
 ## Overview
 
-Patingin integrates with **Claude Code CLI** to provide intelligent, context-aware code fixes for detected anti-patterns. This enables automated code improvement while maintaining safety and control.
+Patingin integrates with **Claude Code CLI** to provide intelligent, context-aware code fixes for detected anti-patterns. This enables interactive code improvement while maintaining safety and control.
 
 ### Key Features
 - **Intelligent Fix Generation** - Context-aware code improvements
@@ -54,7 +54,7 @@ Check that Patingin can detect Claude Code:
 patingin setup
 # Should show something like:
 # ✓ Claude Code CLI: 1.0.35 (Claude Code)
-#   ✨ Auto-fix integration: Ready
+#   ✨ Interactive fix integration: Ready
 ```
 
 ---
@@ -103,7 +103,7 @@ patingin review --fix
 
 ### 3. Batch Mode
 
-Apply all fixes automatically without prompts:
+Apply all fixes in batch mode without individual prompts:
 
 ```bash
 # This workflow is deprecated - use interactive --fix instead
@@ -138,7 +138,7 @@ patingin review --fix
 ```
 
 **Confidence Levels:**
-- **0.9-1.0**: Very high confidence, safe to auto-apply
+- **0.9-1.0**: Very high confidence, safe for interactive application
 - **0.7-0.9**: Good confidence, recommend review
 - **0.5-0.7**: Medium confidence, manual review needed
 - **0.0-0.5**: Low confidence, likely needs manual fix
@@ -315,7 +315,7 @@ jobs:
     - name: Install Patingin
       run: cargo install patingin
     
-    - name: Apply Auto-fixes (Deprecated)
+    - name: Apply Interactive Fixes (Deprecated)
       run: |
         # Note: --fix is deprecated, consider using --fix in interactive mode
         # patingin review --since origin/main --fix --no-confirm --confidence 0.8
@@ -326,7 +326,7 @@ jobs:
         git config user.email "bot@patingin.dev"
         git add -A
         if ! git diff --cached --quiet; then
-          git commit -m "🤖 Auto-fix code quality issues
+          git commit -m "🤖 Interactive fix code quality issues
           
           Applied by Patingin with Claude Code
           
@@ -453,7 +453,7 @@ git add .
 git commit -m "🤖 Apply Patingin fixes with Claude Code"
 ```
 
-### When NOT to Use Auto-fix
+### When NOT to Use Interactive Fixing
 
 - **Complex refactoring** - Manual review needed
 - **Business logic changes** - Requires domain knowledge
@@ -499,10 +499,10 @@ ai_integration:
   # Rule-specific settings
   rules:
     dynamic_atom_creation:
-      auto_fix: true
+      interactive_fix: true
       confidence_threshold: 0.95
     console_log_production:
-      auto_fix: true
+      interactive_fix: true
       confidence_threshold: 0.8
 ```
 
@@ -567,4 +567,4 @@ patingin review --fix --json | \
   sort | uniq -c | sort -nr
 ```
 
-This comprehensive AI integration makes Patingin a powerful tool for maintaining code quality while reducing manual effort through intelligent automation.
+This comprehensive AI integration makes Patingin a powerful tool for maintaining code quality while reducing manual effort through intelligent interactive assistance.

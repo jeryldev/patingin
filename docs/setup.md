@@ -121,7 +121,7 @@ patingin setup
 # 🤖 Claude Code Integration:
 #   CLI Available: ✅ v1.2.3
 #   Authentication: ✅ Authenticated
-#   Auto-fix capability: ✅ Ready
+#   Interactive fix capability: ✅ Ready
 
 # Test fix functionality
 patingin review --suggest
@@ -174,7 +174,7 @@ git add .patingin.yml
 git commit -m "Add Patingin team configuration"
 git push
 
-# Team members automatically inherit settings
+# Team members inherit settings
 git pull
 patingin review  # Uses team settings
 ```
@@ -227,7 +227,7 @@ Create `.vscode/tasks.json`:
       }
     },
     {
-      "label": "Patingin Auto-fix",
+      "label": "Patingin Interactive Fix",
       "type": "shell",
       "command": "patingin",
       "args": ["review", "--fix"],
@@ -249,7 +249,7 @@ Add keyboard shortcuts in `.vscode/keybindings.json`:
   {
     "key": "ctrl+shift+f",
     "command": "workbench.action.tasks.runTask",
-    "args": "Patingin Auto-fix"
+    "args": "Patingin Interactive Fix"
   }
 ]
 ```
@@ -580,12 +580,12 @@ function pcheck() {
     patingin review --severity critical
 }
 
-# Auto-fix and commit
-function pautofix() {
-    echo "🤖 Auto-fixing issues..."
+# Interactive fix and commit
+function pinteractivefix() {
+    echo "🤖 Interactive fixing issues..."
     patingin review --fix --no-confirm
     if [ $? -eq 0 ]; then
-        echo "✅ Auto-fixes applied successfully"
+        echo "✅ Interactive fixes applied successfully"
         git add -u
         echo "Files staged for commit"
     fi
