@@ -19,13 +19,13 @@ Complete guide to installing, configuring, and integrating Patingin into your de
 
 ---
 
-## Installation Methods
+## Installation
 
-### Option 1: Install from Source (Recommended)
+### Install from Source (GitHub)
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/your-org/patingin.git
+git clone https://github.com/jeryldev/patingin.git
 cd patingin
 
 # 2. Build and install
@@ -33,51 +33,6 @@ cargo install --path .
 
 # 3. Verify installation
 patingin --version
-```
-
-### Option 2: Install from Crates.io
-
-```bash
-# Install directly from crates.io (when published)
-cargo install patingin
-
-# Verify installation
-patingin --version
-```
-
-### Option 3: Download Pre-built Binaries
-
-```bash
-# Download from GitHub releases (when available)
-wget https://github.com/your-org/patingin/releases/latest/download/patingin-linux-x64.tar.gz
-tar -xzf patingin-linux-x64.tar.gz
-sudo mv patingin /usr/local/bin/
-
-# Verify installation
-patingin --version
-```
-
-### Option 4: Install via Package Managers
-
-#### Homebrew (macOS)
-```bash
-# Add tap (when available)
-brew tap your-org/patingin
-brew install patingin
-```
-
-#### APT (Ubuntu/Debian)
-```bash
-# Add repository (when available)
-echo "deb [trusted=yes] https://repo.patingin.dev/apt stable main" | sudo tee /etc/apt/sources.list.d/patingin.list
-sudo apt update
-sudo apt install patingin
-```
-
-#### Chocolatey (Windows)
-```powershell
-# Install via Chocolatey (when available)
-choco install patingin
 ```
 
 ---

@@ -2,7 +2,7 @@
 name = "patingin"
 version = "0.1.0"
 edition = "2021"
-authors = ["patingin contributors"]
+authors = ["jeryldev"]
 description = "All-seeing code guardian for pull request inspection and anti-pattern detection"
 license = "MIT"
 repository = "https://github.com/jeryldev/patingin"

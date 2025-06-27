@@ -224,12 +224,7 @@ cargo test --release performance
 
 ## 🤝 Contributing
 
-We welcome contributions! See our [Contributing Guide](CONTRIBUTING.md) for:
-
-- Setting up the development environment
-- Running tests and benchmarks
-- Adding new rules and languages
-- Improving AI integration
+This project is currently in early development and not yet ready for external contributions. Feel free to open issues for suggestions and feedback.
 
 ## 🔒 Security
 
