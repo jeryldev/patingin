@@ -16,12 +16,22 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for git operations
+    
+    - name: Debug git configuration
+      run: |
+        echo "Git version: $(git --version)"
+        echo "Current directory: $(pwd)"
+        echo "Git status: $(git status --porcelain || echo 'Git status failed')"
+        echo "Git remote: $(git remote -v || echo 'No remotes')"
+        echo "Git branch: $(git branch -a || echo 'No branches')"
     
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
       
     - name: Cache cargo
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: |
           ~/.cargo/registry
@@ -47,6 +57,8 @@ jobs:
         
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Fetch full history for git operations
     
     - name: Install Rust
       uses: dtolnay/rust-toolchain@stable
@@ -55,7 +67,8 @@ jobs:
       run: cargo build --release
       
     - name: Upload artifacts
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: patingin-${{ matrix.os }}
         path: target/release/patingin*
+        compression-level: 6
