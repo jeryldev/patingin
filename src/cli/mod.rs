@@ -19,10 +19,10 @@ pub struct Cli {
 pub enum Commands {
     /// Browse, search, and manage anti-pattern rules for your projects
     Rules(commands::rules::RulesArgs),
-    
+
     /// Analyze git diff changes for anti-pattern violations  
     Review(commands::review::ReviewArgs),
-    
+
     /// Comprehensive environment and configuration status check
     Setup,
 }

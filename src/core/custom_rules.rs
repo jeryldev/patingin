@@ -1,4 +1,4 @@
-use super::pattern::{AntiPattern, Language, Severity, DetectionMethod};
+use super::pattern::{AntiPattern, DetectionMethod, Language, Severity};
 use anyhow::Result;
 use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
@@ -79,15 +79,22 @@ impl CustomRulesManager {
         rule: CustomRule,
     ) -> Result<()> {
         let mut config = self.load_config()?;
-        
-        let project_rules = config.projects.entry(project_name.to_string()).or_insert(ProjectRules {
-            path: project_path.to_string(),
-            git_root: true,
-            rules: HashMap::new(),
-        });
+
+        let project_rules =
+            config
+                .projects
+                .entry(project_name.to_string())
+                .or_insert(ProjectRules {
+                    path: project_path.to_string(),
+                    git_root: true,
+                    rules: HashMap::new(),
+                });
 
         let language_key = language.to_string().to_lowercase();
-        let rules_for_language = project_rules.rules.entry(language_key).or_insert(Vec::new());
+        let rules_for_language = project_rules
+            .rules
+            .entry(language_key)
+            .or_insert(Vec::new());
         rules_for_language.push(rule);
 
         self.save_config(&config)?;
@@ -177,7 +184,11 @@ mod custom_rules_tests {
 
     fn setup_test_config() -> (TempDir, CustomRulesManager) {
         let temp_dir = TempDir::new().unwrap();
-        let config_path = temp_dir.path().join("test_rules.yml").to_string_lossy().to_string();
+        let config_path = temp_dir
+            .path()
+            .join("test_rules.yml")
+            .to_string_lossy()
+            .to_string();
         let manager = CustomRulesManager::with_config_path(config_path);
         (temp_dir, manager)
     }
@@ -192,7 +203,7 @@ mod custom_rules_tests {
     #[test]
     fn test_add_project_rule() {
         let (_temp_dir, manager) = setup_test_config();
-        
+
         let custom_rule = CustomRule {
             id: "no_console_log".to_string(),
             description: "Avoid console.log in production".to_string(),
@@ -202,17 +213,19 @@ mod custom_rules_tests {
             enabled: true,
         };
 
-        manager.add_project_rule(
-            "my-app",
-            "/home/user/my-app",
-            Language::JavaScript,
-            custom_rule,
-        ).unwrap();
+        manager
+            .add_project_rule(
+                "my-app",
+                "/home/user/my-app",
+                Language::JavaScript,
+                custom_rule,
+            )
+            .unwrap();
 
         let config = manager.load_config().unwrap();
         assert_eq!(config.projects.len(), 1);
         assert!(config.projects.contains_key("my-app"));
-        
+
         let project = &config.projects["my-app"];
         assert_eq!(project.path, "/home/user/my-app");
         assert!(project.git_root);
@@ -223,7 +236,7 @@ mod custom_rules_tests {
     #[test]
     fn test_get_project_rules() {
         let (_temp_dir, manager) = setup_test_config();
-        
+
         // Add multiple rules for different languages
         let js_rule = CustomRule {
             id: "no_console_log".to_string(),
@@ -243,20 +256,30 @@ mod custom_rules_tests {
             enabled: true,
         };
 
-        manager.add_project_rule("my-app", "/home/user/my-app", Language::JavaScript, js_rule).unwrap();
-        manager.add_project_rule("my-app", "/home/user/my-app", Language::Elixir, elixir_rule).unwrap();
+        manager
+            .add_project_rule("my-app", "/home/user/my-app", Language::JavaScript, js_rule)
+            .unwrap();
+        manager
+            .add_project_rule("my-app", "/home/user/my-app", Language::Elixir, elixir_rule)
+            .unwrap();
 
         let patterns = manager.get_project_rules("my-app").unwrap();
         assert_eq!(patterns.len(), 2);
 
         // Check JavaScript rule
-        let js_pattern = patterns.iter().find(|p| p.language == Language::JavaScript).unwrap();
+        let js_pattern = patterns
+            .iter()
+            .find(|p| p.language == Language::JavaScript)
+            .unwrap();
         assert_eq!(js_pattern.id, "custom_no_console_log");
         assert_eq!(js_pattern.severity, Severity::Warning);
         assert!(js_pattern.tags.contains(&"custom".to_string()));
 
         // Check Elixir rule
-        let elixir_pattern = patterns.iter().find(|p| p.language == Language::Elixir).unwrap();
+        let elixir_pattern = patterns
+            .iter()
+            .find(|p| p.language == Language::Elixir)
+            .unwrap();
         assert_eq!(elixir_pattern.id, "custom_team_genserver");
         assert_eq!(elixir_pattern.severity, Severity::Major);
     }
@@ -264,7 +287,7 @@ mod custom_rules_tests {
     #[test]
     fn test_remove_project_rule() {
         let (_temp_dir, manager) = setup_test_config();
-        
+
         let custom_rule = CustomRule {
             id: "test_rule".to_string(),
             description: "Test rule".to_string(),
@@ -274,8 +297,10 @@ mod custom_rules_tests {
             enabled: true,
         };
 
-        manager.add_project_rule("my-app", "/path", Language::JavaScript, custom_rule).unwrap();
-        
+        manager
+            .add_project_rule("my-app", "/path", Language::JavaScript, custom_rule)
+            .unwrap();
+
         // Verify rule exists
         let patterns = manager.get_project_rules("my-app").unwrap();
         assert_eq!(patterns.len(), 1);
@@ -289,14 +314,16 @@ mod custom_rules_tests {
         assert_eq!(patterns.len(), 0);
 
         // Try to remove non-existent rule
-        let removed = manager.remove_project_rule("my-app", "non_existent").unwrap();
+        let removed = manager
+            .remove_project_rule("my-app", "non_existent")
+            .unwrap();
         assert!(!removed);
     }
 
     #[test]
     fn test_disabled_rules_not_loaded() {
         let (_temp_dir, manager) = setup_test_config();
-        
+
         let disabled_rule = CustomRule {
             id: "disabled_rule".to_string(),
             description: "This rule is disabled".to_string(),
@@ -306,8 +333,10 @@ mod custom_rules_tests {
             enabled: false,
         };
 
-        manager.add_project_rule("my-app", "/path", Language::JavaScript, disabled_rule).unwrap();
-        
+        manager
+            .add_project_rule("my-app", "/path", Language::JavaScript, disabled_rule)
+            .unwrap();
+
         let patterns = manager.get_project_rules("my-app").unwrap();
         assert_eq!(patterns.len(), 0); // Disabled rule should not be loaded
     }
@@ -315,7 +344,7 @@ mod custom_rules_tests {
     #[test]
     fn test_config_persistence() {
         let (_temp_dir, manager) = setup_test_config();
-        
+
         let custom_rule = CustomRule {
             id: "persistent_rule".to_string(),
             description: "This rule should persist".to_string(),
@@ -325,12 +354,14 @@ mod custom_rules_tests {
             enabled: true,
         };
 
-        manager.add_project_rule("test-project", "/test/path", Language::Python, custom_rule).unwrap();
+        manager
+            .add_project_rule("test-project", "/test/path", Language::Python, custom_rule)
+            .unwrap();
 
         // Create new manager instance with same config path
         let manager2 = CustomRulesManager::with_config_path(manager.config_path.clone());
         let patterns = manager2.get_project_rules("test-project").unwrap();
-        
+
         assert_eq!(patterns.len(), 1);
         assert_eq!(patterns[0].id, "custom_persistent_rule");
         assert_eq!(patterns[0].language, Language::Python);

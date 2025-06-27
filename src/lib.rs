@@ -1,8 +1,8 @@
 pub mod cli;
 pub mod core;
-pub mod git;
 pub mod external;
+pub mod git;
 
 pub use core::*;
-pub use git::*;
 pub use external::*;
+pub use git::*;

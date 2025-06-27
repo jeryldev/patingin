@@ -1,8 +1,8 @@
 mod cli;
-mod core;
-mod git;
 mod config;
+mod core;
 mod external;
+mod git;
 
 use anyhow::Result;
 use clap::Parser;

@@ -1,7 +1,7 @@
-use std::path::{Path, PathBuf};
-use std::fs;
-use anyhow::{Result, Context};
+use anyhow::{Context, Result};
 use serde::{Deserialize, Serialize};
+use std::fs;
+use std::path::{Path, PathBuf};
 
 use crate::core::Language;
 
@@ -54,35 +54,35 @@ impl ProjectDetector {
     /// Find the git repository root by walking up the directory tree
     fn find_git_root(start_path: &Path) -> Result<Option<PathBuf>> {
         let mut current = start_path.to_path_buf();
-        
+
         loop {
             let git_dir = current.join(".git");
             if git_dir.exists() {
                 return Ok(Some(current));
             }
-            
+
             match current.parent() {
                 Some(parent) => current = parent.to_path_buf(),
                 None => break,
             }
         }
-        
+
         Ok(None)
     }
 
     /// Find project root by looking for package files (mix.exs, package.json, etc.)
     fn find_package_root(start_path: &Path) -> Result<Option<PathBuf>> {
         let package_files = vec![
-            "mix.exs",           // Elixir
-            "package.json",      // JavaScript/TypeScript
-            "pyproject.toml",    // Python
-            "requirements.txt",  // Python
-            "Cargo.toml",        // Rust
-            "build.zig",         // Zig
+            "mix.exs",          // Elixir
+            "package.json",     // JavaScript/TypeScript
+            "pyproject.toml",   // Python
+            "requirements.txt", // Python
+            "Cargo.toml",       // Rust
+            "build.zig",        // Zig
         ];
 
         let mut current = start_path.to_path_buf();
-        
+
         loop {
             for package_file in &package_files {
                 let package_path = current.join(package_file);
@@ -90,20 +90,21 @@ impl ProjectDetector {
                     return Ok(Some(current));
                 }
             }
-            
+
             match current.parent() {
                 Some(parent) => current = parent.to_path_buf(),
                 None => break,
             }
         }
-        
+
         Ok(None)
     }
 
     /// Analyze a directory to determine project information
     fn analyze_project(project_root: &Path) -> Result<ProjectInfo> {
         let project_name = Self::determine_project_name(project_root)?;
-        let (languages, project_type, package_files) = Self::detect_languages_and_type(project_root)?;
+        let (languages, project_type, package_files) =
+            Self::detect_languages_and_type(project_root)?;
 
         Ok(ProjectInfo {
             name: project_name,
@@ -120,11 +121,11 @@ impl ProjectDetector {
         if let Ok(name) = Self::get_name_from_package_json(project_root) {
             return Ok(name);
         }
-        
+
         if let Ok(name) = Self::get_name_from_mix_exs(project_root) {
             return Ok(name);
         }
-        
+
         if let Ok(name) = Self::get_name_from_cargo_toml(project_root) {
             return Ok(name);
         }
@@ -144,12 +145,12 @@ impl ProjectDetector {
             return Err(anyhow::anyhow!("package.json not found"));
         }
 
-        let content = fs::read_to_string(&package_json_path)
-            .context("Failed to read package.json")?;
-        
-        let package_data: serde_json::Value = serde_json::from_str(&content)
-            .context("Failed to parse package.json")?;
-        
+        let content =
+            fs::read_to_string(&package_json_path).context("Failed to read package.json")?;
+
+        let package_data: serde_json::Value =
+            serde_json::from_str(&content).context("Failed to parse package.json")?;
+
         package_data["name"]
             .as_str()
             .map(|s| s.to_string())
@@ -163,13 +164,12 @@ impl ProjectDetector {
             return Err(anyhow::anyhow!("mix.exs not found"));
         }
 
-        let content = fs::read_to_string(&mix_exs_path)
-            .context("Failed to read mix.exs")?;
-        
+        let content = fs::read_to_string(&mix_exs_path).context("Failed to read mix.exs")?;
+
         // Simple regex-based extraction (could be improved with proper Elixir parsing)
         if let Some(caps) = regex::Regex::new(r#"app:\s*:(\w+)"#)
             .unwrap()
-            .captures(&content) 
+            .captures(&content)
         {
             Ok(caps[1].to_string())
         } else {
@@ -184,12 +184,10 @@ impl ProjectDetector {
             return Err(anyhow::anyhow!("Cargo.toml not found"));
         }
 
-        let content = fs::read_to_string(&cargo_toml_path)
-            .context("Failed to read Cargo.toml")?;
-        
-        let cargo_data: toml::Value = content.parse()
-            .context("Failed to parse Cargo.toml")?;
-        
+        let content = fs::read_to_string(&cargo_toml_path).context("Failed to read Cargo.toml")?;
+
+        let cargo_data: toml::Value = content.parse().context("Failed to parse Cargo.toml")?;
+
         cargo_data["package"]["name"]
             .as_str()
             .map(|s| s.to_string())
@@ -197,7 +195,9 @@ impl ProjectDetector {
     }
 
     /// Detect languages and project type from package files and directory structure
-    fn detect_languages_and_type(project_root: &Path) -> Result<(Vec<Language>, ProjectType, Vec<String>)> {
+    fn detect_languages_and_type(
+        project_root: &Path,
+    ) -> Result<(Vec<Language>, ProjectType, Vec<String>)> {
         let mut languages = Vec::new();
         let mut package_files = Vec::new();
         let mut project_type = ProjectType::Generic;
@@ -205,8 +205,16 @@ impl ProjectDetector {
         // Check for specific package files
         let package_checks = vec![
             ("mix.exs", Language::Elixir, ProjectType::Elixir),
-            ("package.json", Language::JavaScript, ProjectType::JavaScript),
-            ("tsconfig.json", Language::TypeScript, ProjectType::TypeScript),
+            (
+                "package.json",
+                Language::JavaScript,
+                ProjectType::JavaScript,
+            ),
+            (
+                "tsconfig.json",
+                Language::TypeScript,
+                ProjectType::TypeScript,
+            ),
             ("pyproject.toml", Language::Python, ProjectType::Python),
             ("requirements.txt", Language::Python, ProjectType::Python),
             ("Cargo.toml", Language::Rust, ProjectType::Rust),
@@ -220,7 +228,7 @@ impl ProjectDetector {
                     languages.push(language);
                 }
                 package_files.push(file_name.to_string());
-                
+
                 // Set project type to the first detected type
                 if matches!(project_type, ProjectType::Generic) {
                     project_type = proj_type;
@@ -244,7 +252,7 @@ impl ProjectDetector {
     /// Detect languages by scanning file extensions in the project
     fn detect_languages_from_files(project_root: &Path) -> Result<Vec<Language>> {
         let mut languages = Vec::new();
-        
+
         let extension_map = vec![
             (vec!["ex", "exs"], Language::Elixir),
             (vec!["js", "jsx", "mjs", "cjs"], Language::JavaScript),
@@ -284,7 +292,8 @@ impl ProjectDetector {
         let lang_list = if project_info.languages.is_empty() {
             "unknown".to_string()
         } else {
-            project_info.languages
+            project_info
+                .languages
                 .iter()
                 .map(|l| format!("{:?}", l).to_lowercase())
                 .collect::<Vec<_>>()
@@ -293,9 +302,7 @@ impl ProjectDetector {
 
         format!(
             "{} ({:?} project with {})",
-            project_info.name,
-            project_info.project_type,
-            lang_list
+            project_info.name, project_info.project_type, lang_list
         )
     }
 
@@ -316,7 +323,7 @@ mod project_detector_tests {
     fn test_detect_elixir_project() {
         let temp_dir = TempDir::new().expect("Should create temp dir");
         let project_root = temp_dir.path();
-        
+
         // Create mix.exs file
         fs::write(
             project_root.join("mix.exs"),
@@ -328,11 +335,12 @@ mod project_detector_tests {
                      version: "0.1.0"
                    ]
                  end
-               end"#
-        ).expect("Should write mix.exs");
+               end"#,
+        )
+        .expect("Should write mix.exs");
 
-        let project_info = ProjectDetector::analyze_project(project_root)
-            .expect("Should detect Elixir project");
+        let project_info =
+            ProjectDetector::analyze_project(project_root).expect("Should detect Elixir project");
 
         assert_eq!(project_info.name, "my_app");
         assert!(project_info.languages.contains(&Language::Elixir));
@@ -344,7 +352,7 @@ mod project_detector_tests {
     fn test_detect_javascript_project() {
         let temp_dir = TempDir::new().expect("Should create temp dir");
         let project_root = temp_dir.path();
-        
+
         // Create package.json file
         fs::write(
             project_root.join("package.json"),
@@ -352,8 +360,9 @@ mod project_detector_tests {
                  "name": "my-js-project",
                  "version": "1.0.0",
                  "dependencies": {}
-               }"#
-        ).expect("Should write package.json");
+               }"#,
+        )
+        .expect("Should write package.json");
 
         let project_info = ProjectDetector::analyze_project(project_root)
             .expect("Should detect JavaScript project");
@@ -361,40 +370,45 @@ mod project_detector_tests {
         assert_eq!(project_info.name, "my-js-project");
         assert!(project_info.languages.contains(&Language::JavaScript));
         assert!(matches!(project_info.project_type, ProjectType::JavaScript));
-        assert!(project_info.package_files.contains(&"package.json".to_string()));
+        assert!(project_info
+            .package_files
+            .contains(&"package.json".to_string()));
     }
 
     #[test]
     fn test_detect_rust_project() {
         let temp_dir = TempDir::new().expect("Should create temp dir");
         let project_root = temp_dir.path();
-        
+
         // Create Cargo.toml file
         fs::write(
             project_root.join("Cargo.toml"),
             r#"[package]
                name = "my-rust-project"
                version = "0.1.0"
-               edition = "2021""#
-        ).expect("Should write Cargo.toml");
+               edition = "2021""#,
+        )
+        .expect("Should write Cargo.toml");
 
-        let project_info = ProjectDetector::analyze_project(project_root)
-            .expect("Should detect Rust project");
+        let project_info =
+            ProjectDetector::analyze_project(project_root).expect("Should detect Rust project");
 
         assert_eq!(project_info.name, "my-rust-project");
         assert!(project_info.languages.contains(&Language::Rust));
         assert!(matches!(project_info.project_type, ProjectType::Rust));
-        assert!(project_info.package_files.contains(&"Cargo.toml".to_string()));
+        assert!(project_info
+            .package_files
+            .contains(&"Cargo.toml".to_string()));
     }
 
     #[test]
     fn test_git_root_detection() {
         let temp_dir = TempDir::new().expect("Should create temp dir");
         let project_root = temp_dir.path();
-        
+
         // Create .git directory
         fs::create_dir(project_root.join(".git")).expect("Should create .git dir");
-        
+
         // Create nested directory
         let nested_dir = project_root.join("src").join("lib");
         fs::create_dir_all(&nested_dir).expect("Should create nested dirs");
@@ -410,10 +424,10 @@ mod project_detector_tests {
     fn test_package_root_detection() {
         let temp_dir = TempDir::new().expect("Should create temp dir");
         let project_root = temp_dir.path();
-        
+
         // Create mix.exs at root
         fs::write(project_root.join("mix.exs"), "").expect("Should write mix.exs");
-        
+
         // Create nested directory
         let nested_dir = project_root.join("lib").join("my_app");
         fs::create_dir_all(&nested_dir).expect("Should create nested dirs");
@@ -429,12 +443,14 @@ mod project_detector_tests {
     fn test_multi_language_project() {
         let temp_dir = TempDir::new().expect("Should create temp dir");
         let project_root = temp_dir.path();
-        
+
         // Create both package.json and mix.exs
-        fs::write(project_root.join("package.json"), r#"{"name": "multi-lang"}"#)
-            .expect("Should write package.json");
-        fs::write(project_root.join("mix.exs"), "")
-            .expect("Should write mix.exs");
+        fs::write(
+            project_root.join("package.json"),
+            r#"{"name": "multi-lang"}"#,
+        )
+        .expect("Should write package.json");
+        fs::write(project_root.join("mix.exs"), "").expect("Should write mix.exs");
 
         let project_info = ProjectDetector::analyze_project(project_root)
             .expect("Should detect multi-language project");
@@ -449,13 +465,13 @@ mod project_detector_tests {
     fn test_fallback_to_directory_name() {
         let temp_dir = TempDir::new().expect("Should create temp dir");
         let project_root = temp_dir.path();
-        
+
         // Create a directory with no package files
         let custom_dir = project_root.join("my-custom-project");
         fs::create_dir(&custom_dir).expect("Should create custom dir");
 
-        let project_info = ProjectDetector::analyze_project(&custom_dir)
-            .expect("Should analyze generic project");
+        let project_info =
+            ProjectDetector::analyze_project(&custom_dir).expect("Should analyze generic project");
 
         assert_eq!(project_info.name, "my-custom-project");
         assert!(matches!(project_info.project_type, ProjectType::Generic));
@@ -471,9 +487,18 @@ mod project_detector_tests {
             package_files: vec!["mix.exs".to_string()],
         };
 
-        assert!(ProjectDetector::project_uses_language(&project_info, &Language::Elixir));
-        assert!(ProjectDetector::project_uses_language(&project_info, &Language::JavaScript));
-        assert!(!ProjectDetector::project_uses_language(&project_info, &Language::Python));
+        assert!(ProjectDetector::project_uses_language(
+            &project_info,
+            &Language::Elixir
+        ));
+        assert!(ProjectDetector::project_uses_language(
+            &project_info,
+            &Language::JavaScript
+        ));
+        assert!(!ProjectDetector::project_uses_language(
+            &project_info,
+            &Language::Python
+        ));
     }
 
     #[test]
@@ -496,7 +521,7 @@ mod project_detector_tests {
     fn test_detect_current_rust_project() {
         // Test with current project directory (should detect this as a Rust project if Cargo.toml exists)
         let current_dir = std::env::current_dir().expect("Should get current dir");
-        
+
         // Check if we're in a directory with Cargo.toml
         let cargo_toml = current_dir.join("Cargo.toml");
         if cargo_toml.exists() {
@@ -505,16 +530,28 @@ mod project_detector_tests {
                 assert!(!project_info.name.is_empty(), "Project should have a name");
                 assert!(project_info.languages.contains(&Language::Rust));
                 assert!(matches!(project_info.project_type, ProjectType::Rust));
-                assert!(project_info.package_files.contains(&"Cargo.toml".to_string()));
-                
-                println!("Detected project: {} in {}", project_info.name, current_dir.display());
-                println!("Description: {}", ProjectDetector::describe_project(&project_info));
+                assert!(project_info
+                    .package_files
+                    .contains(&"Cargo.toml".to_string()));
+
+                println!(
+                    "Detected project: {} in {}",
+                    project_info.name,
+                    current_dir.display()
+                );
+                println!(
+                    "Description: {}",
+                    ProjectDetector::describe_project(&project_info)
+                );
             } else {
                 panic!("Should detect Rust project when Cargo.toml exists");
             }
         } else {
             // Skip test if not in a Rust project directory (e.g., in test temp dir)
-            println!("Skipping test - no Cargo.toml found in {}", current_dir.display());
+            println!(
+                "Skipping test - no Cargo.toml found in {}",
+                current_dir.display()
+            );
         }
     }
 }

@@ -82,14 +82,14 @@ impl GitDiffParser {
         let mut current_file: Option<FileDiff> = None;
         let mut current_line_number = 0;
         let mut context_lines: Vec<String> = Vec::new();
-        
+
         for line in diff_output.lines() {
             if line.starts_with("diff --git") {
                 // Save previous file if exists
                 if let Some(file) = current_file.take() {
                     files.push(file);
                 }
-                
+
                 // Extract file path from "diff --git a/path b/path"
                 if let Some(path) = Self::extract_file_path(line) {
                     current_file = Some(FileDiff {
@@ -138,20 +138,23 @@ impl GitDiffParser {
                     context_lines.remove(0);
                 }
                 current_line_number += 1;
-            } else if !line.starts_with("index") && !line.starts_with("---") && !line.starts_with("+++") {
+            } else if !line.starts_with("index")
+                && !line.starts_with("---")
+                && !line.starts_with("+++")
+            {
                 // Other lines (binary files, etc.)
                 continue;
             }
         }
-        
+
         // Add the last file
         if let Some(file) = current_file {
             files.push(file);
         }
-        
+
         Ok(GitDiff { files })
     }
-    
+
     #[allow(dead_code)]
     pub fn build_git_command(scope: &DiffScope) -> String {
         match scope {
@@ -160,37 +163,40 @@ impl GitDiffParser {
             DiffScope::SinceCommit(reference) => format!("git diff {}", reference),
         }
     }
-    
+
     pub fn execute_git_diff(scope: &DiffScope) -> Result<String> {
         Self::execute_git_diff_in_dir(scope, None)
     }
-    
-    pub fn execute_git_diff_in_dir(scope: &DiffScope, working_dir: Option<&Path>) -> Result<String> {
+
+    pub fn execute_git_diff_in_dir(
+        scope: &DiffScope,
+        working_dir: Option<&Path>,
+    ) -> Result<String> {
         let command_parts: Vec<&str> = match scope {
             DiffScope::Unstaged => vec!["git", "diff"],
             DiffScope::Staged => vec!["git", "diff", "--cached"],
             DiffScope::SinceCommit(reference) => vec!["git", "diff", reference],
         };
-        
+
         let mut command = Command::new(command_parts[0]);
         command.args(&command_parts[1..]);
-        
+
         if let Some(dir) = working_dir {
             command.current_dir(dir);
         }
-        
+
         let output = command.output()?;
-        
+
         if !output.status.success() {
             return Err(anyhow::anyhow!(
                 "Git diff command failed: {}",
                 String::from_utf8_lossy(&output.stderr)
             ));
         }
-        
+
         Ok(String::from_utf8_lossy(&output.stdout).to_string())
     }
-    
+
     fn extract_file_path(diff_line: &str) -> Option<String> {
         // Parse "diff --git a/path b/path" to extract path
         let parts: Vec<&str> = diff_line.split_whitespace().collect();
@@ -202,7 +208,7 @@ impl GitDiffParser {
         }
         None
     }
-    
+
     fn parse_hunk_header(hunk_line: &str) -> Option<usize> {
         // Parse "@@ -15,6 +15,9 @@" to extract starting line number for new version
         if let Some(plus_pos) = hunk_line.find(" +") {
@@ -240,19 +246,23 @@ index 1234567..abcdefg 100644
  end"#;
 
         let parsed = GitDiffParser::parse(diff_output).expect("Should parse diff");
-        
+
         assert_eq!(parsed.files.len(), 1);
-        
+
         let file_diff = &parsed.files[0];
         assert_eq!(file_diff.path, "lib/user.ex");
         assert!(file_diff.added_lines.len() > 0);
         assert!(file_diff.removed_lines.len() > 0);
-        
+
         // Should capture the added line with the fix
-        let added_lines: Vec<_> = file_diff.added_lines.iter()
+        let added_lines: Vec<_> = file_diff
+            .added_lines
+            .iter()
             .map(|line| &line.content)
             .collect();
-        assert!(added_lines.iter().any(|line| line.contains("String.to_existing_atom")));
+        assert!(added_lines
+            .iter()
+            .any(|line| line.contains("String.to_existing_atom")));
     }
 
     #[test]
@@ -279,7 +289,7 @@ index 9876543..fedcba9 100644
  end"#;
 
         let parsed = GitDiffParser::parse(diff_output).expect("Should parse multi-file diff");
-        
+
         assert_eq!(parsed.files.len(), 2);
         assert!(parsed.files.iter().any(|f| f.path == "lib/user.ex"));
         assert!(parsed.files.iter().any(|f| f.path == "lib/auth.ex"));
@@ -297,27 +307,37 @@ index 9876543..fedcba9 100644
 
         for scope in scopes {
             let git_cmd = GitDiffParser::build_git_command(&scope);
-            assert!(!git_cmd.is_empty(), "Git command should not be empty for scope: {:?}", scope);
-            
+            assert!(
+                !git_cmd.is_empty(),
+                "Git command should not be empty for scope: {:?}",
+                scope
+            );
+
             // Commands should start with "git diff"
-            assert!(git_cmd.starts_with("git diff"), "Command should start with 'git diff': {}", git_cmd);
+            assert!(
+                git_cmd.starts_with("git diff"),
+                "Command should start with 'git diff': {}",
+                git_cmd
+            );
         }
     }
 
     #[test]
     fn test_diff_scope_commands() {
         // Test that different scopes generate correct git commands
-        
+
         let unstaged_cmd = GitDiffParser::build_git_command(&DiffScope::Unstaged);
         assert_eq!(unstaged_cmd, "git diff");
-        
+
         let staged_cmd = GitDiffParser::build_git_command(&DiffScope::Staged);
         assert_eq!(staged_cmd, "git diff --cached");
-        
-        let since_commit_cmd = GitDiffParser::build_git_command(&DiffScope::SinceCommit("HEAD~3".to_string()));
+
+        let since_commit_cmd =
+            GitDiffParser::build_git_command(&DiffScope::SinceCommit("HEAD~3".to_string()));
         assert_eq!(since_commit_cmd, "git diff HEAD~3");
-        
-        let since_branch_cmd = GitDiffParser::build_git_command(&DiffScope::SinceCommit("origin/main".to_string()));
+
+        let since_branch_cmd =
+            GitDiffParser::build_git_command(&DiffScope::SinceCommit("origin/main".to_string()));
         assert_eq!(since_branch_cmd, "git diff origin/main");
     }
 
@@ -326,9 +346,10 @@ index 9876543..fedcba9 100644
         let empty_diff = "";
         let parsed = GitDiffParser::parse(empty_diff).expect("Should handle empty diff");
         assert_eq!(parsed.files.len(), 0);
-        
+
         let no_changes_diff = "diff --git a/unchanged.ex b/unchanged.ex\nindex 1234567..1234567 100644\n--- a/unchanged.ex\n+++ b/unchanged.ex";
-        let parsed = GitDiffParser::parse(no_changes_diff).expect("Should handle diff with no changes");
+        let parsed =
+            GitDiffParser::parse(no_changes_diff).expect("Should handle diff with no changes");
         assert_eq!(parsed.files.len(), 1);
         assert_eq!(parsed.files[0].added_lines.len(), 0);
         assert_eq!(parsed.files[0].removed_lines.len(), 0);

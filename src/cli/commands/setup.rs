@@ -1,16 +1,19 @@
 use anyhow::Result;
 use colored::*;
-use which::which;
 use std::env;
 use std::process::Command;
+use which::which;
 
-use crate::git::GitIntegration;
-use crate::external::ClaudeCodeIntegration;
 use crate::core::ProjectDetector;
+use crate::external::ClaudeCodeIntegration;
+use crate::git::GitIntegration;
 
 pub async fn run() -> Result<()> {
     println!("{}", "🔧 Patingin Environment Setup & Status".bold());
-    println!("{}\n", "Comprehensive diagnostic of your development environment".dimmed());
+    println!(
+        "{}\n",
+        "Comprehensive diagnostic of your development environment".dimmed()
+    );
 
     let mut checks_passed = 0;
     let mut total_checks = 0;
@@ -19,19 +22,31 @@ pub async fn run() -> Result<()> {
     // === Project Information ===
     println!("{}", "📁 Project Information".bold().blue());
     total_checks += 1;
-    
+
     let current_dir = env::current_dir()?;
     match ProjectDetector::detect_project(Some(&current_dir)) {
         Ok(project_info) => {
-            println!("  {} Project detected: {}", "✓".green(), ProjectDetector::describe_project(&project_info).bold());
-            println!("  📂 Root path: {}", project_info.root_path.display().to_string().dimmed());
-            
+            println!(
+                "  {} Project detected: {}",
+                "✓".green(),
+                ProjectDetector::describe_project(&project_info).bold()
+            );
+            println!(
+                "  📂 Root path: {}",
+                project_info.root_path.display().to_string().dimmed()
+            );
+
             if !project_info.package_files.is_empty() {
-                println!("  📦 Package files: {}", project_info.package_files.join(", ").dimmed());
+                println!(
+                    "  📦 Package files: {}",
+                    project_info.package_files.join(", ").dimmed()
+                );
             }
-            
+
             if !project_info.languages.is_empty() {
-                let lang_names: Vec<String> = project_info.languages.iter()
+                let lang_names: Vec<String> = project_info
+                    .languages
+                    .iter()
                     .map(|l| format!("{:?}", l))
                     .collect();
                 println!("  🔤 Languages: {}", lang_names.join(", ").cyan());
@@ -40,14 +55,17 @@ pub async fn run() -> Result<()> {
         }
         Err(e) => {
             println!("  {} Failed to detect project: {}", "✗".red(), e);
-            println!("  📂 Current directory: {}", current_dir.display().to_string().dimmed());
+            println!(
+                "  📂 Current directory: {}",
+                current_dir.display().to_string().dimmed()
+            );
         }
     }
     println!();
 
     // === Git Environment ===
     println!("{}", "🌳 Git Environment".bold().blue());
-    
+
     // Git installation check
     total_checks += 1;
     if which("git").is_ok() {
@@ -68,11 +86,11 @@ pub async fn run() -> Result<()> {
     match GitIntegration::new(current_dir.clone()) {
         Ok(git) => {
             println!("  {} Git repository detected", "✓".green());
-            
+
             if let Ok(branch) = git.get_current_branch() {
                 println!("    🌿 Current branch: {}", branch.cyan());
             }
-            
+
             // Check for remotes
             if let Ok(output) = Command::new("git").args(&["remote", "-v"]).output() {
                 let remotes = String::from_utf8_lossy(&output.stdout);
@@ -87,9 +105,12 @@ pub async fn run() -> Result<()> {
                     warnings += 1;
                 }
             }
-            
+
             // Check git status
-            if let Ok(output) = Command::new("git").args(&["status", "--porcelain"]).output() {
+            if let Ok(output) = Command::new("git")
+                .args(&["status", "--porcelain"])
+                .output()
+            {
                 let status = String::from_utf8_lossy(&output.stdout);
                 if status.trim().is_empty() {
                     println!("    {} Working directory clean", "✓".green());
@@ -110,21 +131,29 @@ pub async fn run() -> Result<()> {
 
     // === Tool Dependencies ===
     println!("{}", "🛠️  Tool Dependencies".bold().blue());
-    
+
     // Claude Code CLI check
     total_checks += 1;
     let integration = ClaudeCodeIntegration::detect();
     if integration.available {
-        let version_display = integration.version
+        let version_display = integration
+            .version
             .as_ref()
             .map(|v| v.as_str())
             .unwrap_or("unknown version");
-        println!("  {} Claude Code CLI: {}", "✓".green(), version_display.dimmed());
+        println!(
+            "  {} Claude Code CLI: {}",
+            "✓".green(),
+            version_display.dimmed()
+        );
         println!("    ✨ Auto-fix integration: {}", "Ready".green());
         checks_passed += 1;
     } else {
         println!("  {} Claude Code CLI not found", "✗".red());
-        println!("    💡 Install from: {}", "https://docs.anthropic.com/en/docs/claude-code".cyan());
+        println!(
+            "    💡 Install from: {}",
+            "https://docs.anthropic.com/en/docs/claude-code".cyan()
+        );
     }
 
     // System tools check
@@ -136,24 +165,38 @@ pub async fn run() -> Result<()> {
 
     for (tool, _description) in &system_tools {
         if which(tool).is_ok() {
-            println!("  {} {}: {}", "✓".green(), tool.bold(), "Available".dimmed());
+            println!(
+                "  {} {}: {}",
+                "✓".green(),
+                tool.bold(),
+                "Available".dimmed()
+            );
         } else {
-            println!("  {} {}: {}", "○".dimmed(), tool.bold(), "Optional but recommended".dimmed());
+            println!(
+                "  {} {}: {}",
+                "○".dimmed(),
+                tool.bold(),
+                "Optional but recommended".dimmed()
+            );
         }
     }
     println!();
 
     // === Configuration ===
     println!("{}", "⚙️  Configuration".bold().blue());
-    
+
     // Patingin config directory
     total_checks += 1;
     let home_dir = home::home_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
     let config_dir = home_dir.join(".config").join("patingin");
-    
+
     if config_dir.exists() {
-        println!("  {} Global config directory: {}", "✓".green(), config_dir.display().to_string().dimmed());
-        
+        println!(
+            "  {} Global config directory: {}",
+            "✓".green(),
+            config_dir.display().to_string().dimmed()
+        );
+
         let rules_file = config_dir.join("rules.yml");
         if rules_file.exists() {
             println!("    📋 Custom rules file: {}", "Found".green());
@@ -162,18 +205,21 @@ pub async fn run() -> Result<()> {
         }
         checks_passed += 1;
     } else {
-        println!("  {} Global config directory: {}", "!".yellow(), "Will be created on first use".yellow());
-        println!("    📂 Location: {}", config_dir.display().to_string().dimmed());
+        println!(
+            "  {} Global config directory: {}",
+            "!".yellow(),
+            "Will be created on first use".yellow()
+        );
+        println!(
+            "    📂 Location: {}",
+            config_dir.display().to_string().dimmed()
+        );
         warnings += 1;
     }
 
     // Project-specific config
-    let project_configs = [
-        "patingin.yml",
-        ".patingin.yml",
-        ".patingin/config.yml",
-    ];
-    
+    let project_configs = ["patingin.yml", ".patingin.yml", ".patingin/config.yml"];
+
     let mut project_config_found = false;
     for config_path in &project_configs {
         if std::path::Path::new(config_path).exists() {
@@ -182,22 +228,29 @@ pub async fn run() -> Result<()> {
             break;
         }
     }
-    
+
     if !project_config_found {
         println!("  {} Project config: {}", "○".dimmed(), "Optional".dimmed());
-        println!("    💡 Create with: {}", "patingin rules add --project".cyan());
+        println!(
+            "    💡 Create with: {}",
+            "patingin rules add --project".cyan()
+        );
     }
     println!();
 
     // === System Information ===
     println!("{}", "💻 System Information".bold().blue());
-    
+
     // OS and architecture
     println!("  🖥️  OS: {} {}", env::consts::OS, env::consts::ARCH);
-    
+
     // Patingin version
-    println!("  🦀 Patingin: {} ({})", env!("CARGO_PKG_VERSION"), env!("CARGO_PKG_NAME"));
-    
+    println!(
+        "  🦀 Patingin: {} ({})",
+        env!("CARGO_PKG_VERSION"),
+        env!("CARGO_PKG_NAME")
+    );
+
     // Environment variables
     if let Ok(editor) = env::var("EDITOR") {
         println!("  ✏️  Editor: {}", editor.cyan());
@@ -213,17 +266,22 @@ pub async fn run() -> Result<()> {
     // === Summary ===
     println!("{}", "=".repeat(60));
     let success_rate = (checks_passed as f64 / total_checks as f64) * 100.0;
-    
+
     if checks_passed == total_checks && warnings == 0 {
         println!("{} Environment is fully ready!", "🎉".green().bold());
         println!("  All {} checks passed with no warnings", checks_passed);
     } else if checks_passed == total_checks {
-        println!("{} Environment is ready with minor warnings", "✅".green().bold());
+        println!(
+            "{} Environment is ready with minor warnings",
+            "✅".green().bold()
+        );
         println!("  {} checks passed, {} warnings", checks_passed, warnings);
     } else {
         println!("{} Environment needs attention", "⚠️".yellow().bold());
-        println!("  {}/{} checks passed ({:.0}%), {} warnings", 
-            checks_passed, total_checks, success_rate, warnings);
+        println!(
+            "  {}/{} checks passed ({:.0}%), {} warnings",
+            checks_passed, total_checks, success_rate, warnings
+        );
     }
 
     println!("\n💡 Next steps:");
@@ -233,7 +291,10 @@ pub async fn run() -> Result<()> {
     if warnings > 0 {
         println!("  • Review warnings for optimal experience");
     }
-    println!("  • Run {} to start analyzing your code", "patingin review".cyan());
+    println!(
+        "  • Run {} to start analyzing your code",
+        "patingin review".cyan()
+    );
     println!("  • Use {} to see available rules", "patingin rules".cyan());
 
     Ok(())
@@ -257,12 +318,12 @@ mod setup_command_tests {
         // Test project detection logic (same as ProjectDetector tests)
         let current_dir = env::current_dir().unwrap();
         let project_result = ProjectDetector::detect_project(Some(&current_dir));
-        
+
         // Should either succeed or fail gracefully
         match project_result {
             Ok(project_info) => {
                 assert!(!project_info.root_path.as_os_str().is_empty());
-            },
+            }
             Err(_) => {
                 // Project detection failure is acceptable in test environment
             }
@@ -272,7 +333,7 @@ mod setup_command_tests {
     #[test]
     fn test_git_version_check() {
         use std::process::Command;
-        
+
         // Test git version check functionality
         let git_check = which("git");
         if git_check.is_ok() {
@@ -291,20 +352,26 @@ mod setup_command_tests {
         let npm_check = Command::new("npm")
             .args(&["list", "-g", "@anthropic-ai/claude-code"])
             .output();
-            
+
         let claude_code_npm_installed = if let Ok(output) = npm_check {
             let output_str = String::from_utf8_lossy(&output.stdout);
             output_str.contains("@anthropic-ai/claude-code")
         } else {
             false
         };
-        
+
         let integration = ClaudeCodeIntegration::detect();
-        
+
         // Detection logic should correctly identify availability
         // Note: integration.available might have additional checks beyond just which()
-        println!("Claude Code npm package installed: {}", claude_code_npm_installed);
-        println!("Integration detected as available: {}", integration.available);
+        println!(
+            "Claude Code npm package installed: {}",
+            claude_code_npm_installed
+        );
+        println!(
+            "Integration detected as available: {}",
+            integration.available
+        );
         // so we just test that the detection doesn't panic and returns a boolean
         assert!(integration.available == true || integration.available == false);
     }
@@ -328,11 +395,11 @@ mod setup_command_tests {
     #[test]
     fn test_config_directory_logic() {
         use std::path::PathBuf;
-        
+
         // Test config directory path construction
         let home_dir = home::home_dir().unwrap_or_else(|| PathBuf::from("."));
         let config_dir = home_dir.join(".config").join("patingin");
-        
+
         // Verify path construction
         assert!(config_dir.to_string_lossy().contains("patingin"));
         assert!(config_dir.to_string_lossy().contains(".config"));
@@ -341,13 +408,9 @@ mod setup_command_tests {
     #[test]
     fn test_project_config_detection() {
         use std::path::Path;
-        
-        let project_configs = [
-            "patingin.yml",
-            ".patingin.yml", 
-            ".patingin/config.yml",
-        ];
-        
+
+        let project_configs = ["patingin.yml", ".patingin.yml", ".patingin/config.yml"];
+
         // Test that we can check for project config files
         for config_path in &project_configs {
             let exists = Path::new(config_path).exists();
@@ -361,7 +424,7 @@ mod setup_command_tests {
         // Test system info gathering
         assert!(!env::consts::OS.is_empty());
         assert!(!env::consts::ARCH.is_empty());
-        
+
         // Test package info
         let version = env!("CARGO_PKG_VERSION");
         let name = env!("CARGO_PKG_NAME");
@@ -369,18 +432,18 @@ mod setup_command_tests {
         assert_eq!(name, "patingin");
     }
 
-    #[test] 
+    #[test]
     fn test_environment_variables_check() {
         // Test environment variable checks
         let editor = env::var("EDITOR");
         let shell = env::var("SHELL");
-        
+
         // These may or may not be set - both are valid
         match editor {
             Ok(editor_val) => assert!(!editor_val.is_empty()),
             Err(_) => {} // EDITOR not set is valid
         }
-        
+
         match shell {
             Ok(shell_val) => assert!(!shell_val.is_empty()),
             Err(_) => {} // SHELL not set is valid on some systems
@@ -392,7 +455,7 @@ mod setup_command_tests {
         // Test GitIntegration creation with current directory
         let current_dir = env::current_dir().unwrap();
         let git_result = GitIntegration::new(current_dir);
-        
+
         // Either succeeds (in git repo) or fails (not in git repo) - both valid
         match git_result {
             Ok(git) => {
@@ -400,7 +463,7 @@ mod setup_command_tests {
                 if let Ok(branch) = git.get_current_branch() {
                     assert!(!branch.is_empty());
                 }
-            },
+            }
             Err(_) => {
                 // Not in git repo is a valid test state
             }
@@ -410,19 +473,19 @@ mod setup_command_tests {
     #[test]
     fn test_git_status_check() {
         use std::process::Command;
-        
+
         // Test git status functionality (if in git repo)
         let status_output = Command::new("git")
             .args(&["status", "--porcelain"])
             .output();
-            
+
         match status_output {
             Ok(output) => {
                 let status = String::from_utf8_lossy(&output.stdout);
                 // Status can be empty (clean) or contain changes - both valid
                 // Just verify we got a result without panicking
                 let _status_length = status.len();
-            },
+            }
             Err(_) => {
                 // Git not available or not in git repo - valid test state
             }
@@ -432,19 +495,17 @@ mod setup_command_tests {
     #[test]
     fn test_remote_check() {
         use std::process::Command;
-        
+
         // Test git remote check functionality
-        let remote_output = Command::new("git")
-            .args(&["remote", "-v"])
-            .output();
-            
+        let remote_output = Command::new("git").args(&["remote", "-v"]).output();
+
         match remote_output {
             Ok(output) => {
                 let remotes = String::from_utf8_lossy(&output.stdout);
                 // Remotes can exist or not - both are valid states
                 // Just verify we got a result without panicking
                 let _remotes_length = remotes.len();
-            },
+            }
             Err(_) => {
                 // Git not available - valid test state
             }
@@ -457,15 +518,15 @@ mod setup_command_tests {
         let checks_passed = 3;
         let total_checks = 5;
         let warnings = 1;
-        
+
         let success_rate = (checks_passed as f64 / total_checks as f64) * 100.0;
         assert_eq!(success_rate, 60.0);
-        
+
         // Test different scenarios
         let all_passed = checks_passed == total_checks && warnings == 0;
         let ready_with_warnings = checks_passed == total_checks && warnings > 0;
         let needs_attention = checks_passed < total_checks;
-        
+
         assert!(!all_passed);
         assert!(!ready_with_warnings);
         assert!(needs_attention);
@@ -477,7 +538,7 @@ mod setup_command_tests {
         let checks_passed = 5;
         let total_checks = 5;
         let warnings = 0;
-        
+
         let all_passed = checks_passed == total_checks && warnings == 0;
         assert!(all_passed);
     }
@@ -488,7 +549,7 @@ mod setup_command_tests {
         let checks_passed = 5;
         let total_checks = 5;
         let warnings = 2;
-        
+
         let ready_with_warnings = checks_passed == total_checks && warnings > 0;
         assert!(ready_with_warnings);
     }
@@ -499,7 +560,7 @@ mod setup_command_tests {
         let checks_passed = 3;
         let total_checks = 5;
         let _warnings = 1;
-        
+
         let needs_attention = checks_passed < total_checks;
         assert!(needs_attention);
     }
@@ -509,14 +570,14 @@ mod setup_command_tests {
         // Test setup command behavior in a temporary directory
         let temp_dir = TempDir::new().unwrap();
         let original_dir = env::current_dir().unwrap();
-        
+
         // Change to temp directory
         env::set_current_dir(temp_dir.path()).unwrap();
-        
+
         // Run setup (should handle non-git directory gracefully)
         let result = run().await;
         assert!(result.is_ok());
-        
+
         // Restore original directory
         env::set_current_dir(original_dir).unwrap();
     }
@@ -527,7 +588,7 @@ mod setup_command_tests {
         let home_dir = home::home_dir().unwrap_or_else(|| std::path::PathBuf::from("."));
         let config_dir = home_dir.join(".config").join("patingin");
         let rules_file = config_dir.join("rules.yml");
-        
+
         assert!(config_dir.ends_with("patingin"));
         assert!(rules_file.ends_with("rules.yml"));
     }

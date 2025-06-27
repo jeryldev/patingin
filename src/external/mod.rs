@@ -1,6 +1,6 @@
-use anyhow::{Result, anyhow};
-use std::process::Command;
+use anyhow::{anyhow, Result};
 use std::fs;
+use std::process::Command;
 use tempfile::NamedTempFile;
 use which::which;
 
@@ -75,7 +75,7 @@ impl ClaudeCodeIntegration {
 
         // Create a focused prompt for Claude Code
         let prompt = self.create_fix_prompt(request);
-        
+
         // Execute Claude Code with the prompt
         match self.execute_claude_code(&prompt) {
             Ok(response) => self.parse_claude_response(&response, request),
@@ -84,7 +84,7 @@ impl ClaudeCodeIntegration {
                 fixed_code: None,
                 error_message: Some(format!("Claude Code execution failed: {}", e)),
                 confidence: 0.0,
-            })
+            }),
         }
     }
 
@@ -134,7 +134,7 @@ Please provide ONLY the fixed code without explanations. Return the corrected li
     fn parse_claude_response(&self, response: &str, _request: &FixRequest) -> Result<FixResult> {
         // Parse the Claude Code response
         let cleaned_response = response.trim();
-        
+
         if cleaned_response.is_empty() {
             return Ok(FixResult {
                 success: false,
@@ -193,7 +193,10 @@ Please provide ONLY the fixed code without explanations. Return the corrected li
         let mut confidence: f64 = 0.7; // Base confidence
 
         // Increase confidence if code looks structured
-        if fixed_code.contains("def ") || fixed_code.contains("function ") || fixed_code.contains("defmodule ") {
+        if fixed_code.contains("def ")
+            || fixed_code.contains("function ")
+            || fixed_code.contains("defmodule ")
+        {
             confidence += 0.1;
         }
 
@@ -203,7 +206,9 @@ Please provide ONLY the fixed code without explanations. Return the corrected li
         }
 
         // Decrease confidence if response looks like an explanation
-        if fixed_code.to_lowercase().contains("here's") || fixed_code.to_lowercase().contains("this code") {
+        if fixed_code.to_lowercase().contains("here's")
+            || fixed_code.to_lowercase().contains("this code")
+        {
             confidence -= 0.3;
         }
 
@@ -234,7 +239,7 @@ Please provide ONLY the fixed code without explanations. Return the corrected li
 
     pub fn validate_fix(&self, original: &str, fixed: &str, language: &str) -> Result<bool> {
         // Basic validation to ensure the fix is reasonable
-        
+
         // Check if the fix is not empty
         if fixed.trim().is_empty() {
             return Ok(false);
@@ -260,7 +265,7 @@ Please provide ONLY the fixed code without explanations. Return the corrected li
         let balanced_parens = self.check_balanced_brackets(code, '(', ')');
         let balanced_braces = self.check_balanced_brackets(code, '{', '}');
         let balanced_brackets = self.check_balanced_brackets(code, '[', ']');
-        
+
         Ok(balanced_parens && balanced_braces && balanced_brackets)
     }
 
@@ -269,7 +274,7 @@ Please provide ONLY the fixed code without explanations. Return the corrected li
         let balanced_parens = self.check_balanced_brackets(code, '(', ')');
         let balanced_braces = self.check_balanced_brackets(code, '{', '}');
         let balanced_brackets = self.check_balanced_brackets(code, '[', ']');
-        
+
         Ok(balanced_parens && balanced_braces && balanced_brackets)
     }
 
@@ -277,7 +282,7 @@ Please provide ONLY the fixed code without explanations. Return the corrected li
         // Basic Python syntax checks
         let balanced_parens = self.check_balanced_brackets(code, '(', ')');
         let balanced_brackets = self.check_balanced_brackets(code, '[', ']');
-        
+
         // Check for basic Python indentation (simplified)
         let lines: Vec<&str> = code.lines().collect();
         for line in lines {
@@ -286,7 +291,7 @@ Please provide ONLY the fixed code without explanations. Return the corrected li
                 continue;
             }
         }
-        
+
         Ok(balanced_parens && balanced_brackets)
     }
 
@@ -295,7 +300,7 @@ Please provide ONLY the fixed code without explanations. Return the corrected li
         let balanced_parens = self.check_balanced_brackets(code, '(', ')');
         let balanced_braces = self.check_balanced_brackets(code, '{', '}');
         let balanced_brackets = self.check_balanced_brackets(code, '[', ']');
-        
+
         Ok(balanced_parens && balanced_braces && balanced_brackets)
     }
 

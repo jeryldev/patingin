@@ -57,15 +57,19 @@ impl FixEngine {
             });
         }
 
-        println!("🤖 Processing {} violations with Claude Code...", request.violations.len());
-        
+        println!(
+            "🤖 Processing {} violations with Claude Code...",
+            request.violations.len()
+        );
+
         let mut fix_details = Vec::new();
         let mut files_to_modify: HashMap<String, Vec<(usize, String)>> = HashMap::new();
-        
+
         // Process each violation
         for (i, violation) in request.violations.iter().enumerate() {
-            print!("  [{}/{}] Fixing {} in {}:{}... ", 
-                i + 1, 
+            print!(
+                "  [{}/{}] Fixing {} in {}:{}... ",
+                i + 1,
                 request.violations.len(),
                 violation.rule.name,
                 violation.file_path,
@@ -77,14 +81,14 @@ impl FixEngine {
             let fix_result = self.claude_integration.generate_fix(&fix_request)?;
 
             let mut applied = false;
-            
+
             if fix_result.success && fix_result.confidence >= request.confidence_threshold {
                 if let Some(ref fixed_code) = fix_result.fixed_code {
                     // Validate the fix
                     if self.claude_integration.validate_fix(
                         &violation.content,
                         fixed_code,
-                        &format!("{:?}", violation.language).to_lowercase()
+                        &format!("{:?}", violation.language).to_lowercase(),
                     )? {
                         if request.interactive {
                             // Show preview and ask for confirmation
@@ -101,7 +105,15 @@ impl FixEngine {
                                 .push((violation.line_number, fixed_code.clone()));
                         }
 
-                        println!("{}", if applied { "✅ Fixed" } else { "⏭️ Skipped" }.green());
+                        println!(
+                            "{}",
+                            if applied {
+                                "✅ Fixed"
+                            } else {
+                                "⏭️ Skipped"
+                            }
+                            .green()
+                        );
                     } else {
                         println!("{}", "❌ Invalid fix".red());
                     }
@@ -130,7 +142,10 @@ impl FixEngine {
         let mut files_modified = Vec::new();
         if !request.dry_run {
             for (file_path, fixes) in files_to_modify {
-                if let Err(e) = self.claude_integration.apply_fixes_to_file(&file_path, &fixes) {
+                if let Err(e) = self
+                    .claude_integration
+                    .apply_fixes_to_file(&file_path, &fixes)
+                {
                     eprintln!("❌ Failed to apply fixes to {}: {}", file_path, e);
                 } else {
                     files_modified.push(file_path);
@@ -164,24 +179,28 @@ impl FixEngine {
         })
     }
 
-    fn show_fix_preview_and_confirm(&self, violation: &ReviewViolation, fixed_code: &str) -> Result<bool> {
+    fn show_fix_preview_and_confirm(
+        &self,
+        violation: &ReviewViolation,
+        fixed_code: &str,
+    ) -> Result<bool> {
         println!("\n{}", "📋 Fix Preview".bold().cyan());
         println!("File: {}", violation.file_path.bold());
         println!("Line: {}", violation.line_number.to_string().cyan());
         println!("Issue: {}", violation.rule.name.yellow());
-        
+
         println!("\n{}", "Before:".red());
         println!("  {}", violation.content.red());
-        
+
         println!("\n{}", "After:".green());
         println!("  {}", fixed_code.green());
-        
+
         print!("\n{} Apply this fix? [y/N/a/q]: ", "❓".cyan());
         io::stdout().flush().unwrap();
-        
+
         let mut input = String::new();
         io::stdin().read_line(&mut input)?;
-        
+
         match input.trim().to_lowercase().as_str() {
             "y" | "yes" => Ok(true),
             "a" | "all" => {
@@ -199,12 +218,24 @@ impl FixEngine {
     pub fn generate_fix_summary(&self, result: &BatchFixResult) {
         println!("\n{}", "🎯 Batch Fix Summary".bold().cyan());
         println!("══════════════════════════════════════");
-        
+
         println!("Total violations: {}", result.total_violations);
-        println!("{} Fixed: {}", "✅".green(), result.fixed_violations.to_string().green());
-        println!("{} Failed: {}", "❌".red(), result.failed_violations.to_string().red());
-        println!("{} Skipped: {}", "⏭️".yellow(), result.skipped_violations.to_string().yellow());
-        
+        println!(
+            "{} Fixed: {}",
+            "✅".green(),
+            result.fixed_violations.to_string().green()
+        );
+        println!(
+            "{} Failed: {}",
+            "❌".red(),
+            result.failed_violations.to_string().red()
+        );
+        println!(
+            "{} Skipped: {}",
+            "⏭️".yellow(),
+            result.skipped_violations.to_string().yellow()
+        );
+
         if !result.files_modified.is_empty() {
             println!("\n{} Files modified:", "📝".cyan());
             for file in &result.files_modified {
@@ -213,7 +244,9 @@ impl FixEngine {
         }
 
         // Show detailed results for failed or skipped fixes
-        let problematic_fixes: Vec<_> = result.fix_details.iter()
+        let problematic_fixes: Vec<_> = result
+            .fix_details
+            .iter()
             .filter(|d| !d.applied || !d.fix_result.success)
             .collect();
 
@@ -227,8 +260,9 @@ impl FixEngine {
                 } else {
                     "✅ Applied"
                 };
-                
-                println!("  {} {}:{} - {} ({})", 
+
+                println!(
+                    "  {} {}:{} - {} ({})",
                     status,
                     detail.file_path,
                     detail.line_number,
@@ -247,19 +281,25 @@ impl FixEngine {
             println!("  • Review the changes and test your code");
             println!("  • Run {} to verify fixes", "patingin review".cyan());
             if result.files_modified.len() > 0 {
-                println!("  • Commit the changes: {}", "git add . && git commit -m \"Apply patingin fixes\"".cyan());
+                println!(
+                    "  • Commit the changes: {}",
+                    "git add . && git commit -m \"Apply patingin fixes\"".cyan()
+                );
             }
         }
         if result.failed_violations > 0 || result.skipped_violations > 0 {
             println!("  • Review failed/skipped violations manually");
-            println!("  • Use {} for detailed guidance", "patingin rules --detail <rule_id>".cyan());
+            println!(
+                "  • Use {} for detailed guidance",
+                "patingin rules --detail <rule_id>".cyan()
+            );
         }
     }
 
     pub fn preview_batch_fixes(&self, violations: &[ReviewViolation]) -> Result<()> {
         println!("{}", "🔍 Batch Fix Preview".bold().cyan());
         println!("═══════════════════════════════════");
-        
+
         if violations.is_empty() {
             println!("No fixable violations found.");
             return Ok(());
@@ -274,8 +314,9 @@ impl FixEngine {
                 .push(violation);
         }
 
-        println!("Will attempt to fix {} violations in {} files:", 
-            violations.len(), 
+        println!(
+            "Will attempt to fix {} violations in {} files:",
+            violations.len(),
             violations_by_file.len()
         );
 
@@ -287,8 +328,9 @@ impl FixEngine {
                 } else {
                     "❓ Claude Code not available"
                 };
-                
-                println!("  {}:{} - {} ({})", 
+
+                println!(
+                    "  {}:{} - {} ({})",
                     violation.line_number.to_string().cyan(),
                     violation.rule.name,
                     confidence_indicator,
@@ -300,9 +342,18 @@ impl FixEngine {
         }
 
         println!("\n{} Commands:", "💡".cyan());
-        println!("  • {} - Preview and apply fixes interactively", "patingin review --auto-fix".cyan());
-        println!("  • {} - Apply all fixes automatically", "patingin review --auto-fix --no-confirm".cyan());
-        println!("  • {} - Show what would be fixed (dry run)", "patingin review --suggest".cyan());
+        println!(
+            "  • {} - Preview and apply fixes interactively",
+            "patingin review --auto-fix".cyan()
+        );
+        println!(
+            "  • {} - Apply all fixes automatically",
+            "patingin review --auto-fix --no-confirm".cyan()
+        );
+        println!(
+            "  • {} - Show what would be fixed (dry run)",
+            "patingin review --suggest".cyan()
+        );
 
         Ok(())
     }
@@ -311,7 +362,7 @@ impl FixEngine {
 #[cfg(test)]
 mod fix_engine_tests {
     use super::*;
-    use crate::core::{AntiPattern, Language, Severity, DetectionMethod};
+    use crate::core::{AntiPattern, DetectionMethod, Language, Severity};
 
     fn create_test_violation() -> ReviewViolation {
         let rule = AntiPattern {
@@ -320,7 +371,9 @@ mod fix_engine_tests {
             language: Language::Elixir,
             severity: Severity::Major,
             description: "Test description".to_string(),
-            detection_method: DetectionMethod::Regex { pattern: "test".to_string() },
+            detection_method: DetectionMethod::Regex {
+                pattern: "test".to_string(),
+            },
             fix_suggestion: "Fix this test issue".to_string(),
             source_url: None,
             claude_code_fixable: true,
@@ -355,27 +408,29 @@ mod fix_engine_tests {
     fn test_create_fix_request() {
         let engine = FixEngine::new();
         let violation = create_test_violation();
-        
+
         let fix_request = engine.create_fix_request(&violation).unwrap();
-        
+
         assert_eq!(fix_request.file_path, "test.ex");
         assert_eq!(fix_request.line_number, 42);
         assert_eq!(fix_request.original_code, "String.to_atom(user_input)");
         assert_eq!(fix_request.language, "elixir");
-        assert!(fix_request.violation_description.contains("Test description"));
+        assert!(fix_request
+            .violation_description
+            .contains("Test description"));
     }
 
     #[tokio::test]
     async fn test_batch_fix_request_creation() {
         let violations = vec![create_test_violation()];
-        
+
         let batch_request = BatchFixRequest {
             violations,
             dry_run: true,
             interactive: false,
             confidence_threshold: 0.7,
         };
-        
+
         assert_eq!(batch_request.violations.len(), 1);
         assert!(batch_request.dry_run);
         assert!(!batch_request.interactive);
@@ -386,7 +441,7 @@ mod fix_engine_tests {
     fn test_preview_batch_fixes() {
         let engine = FixEngine::new();
         let violations = vec![create_test_violation()];
-        
+
         let result = engine.preview_batch_fixes(&violations);
         assert!(result.is_ok());
     }
@@ -395,7 +450,7 @@ mod fix_engine_tests {
     fn test_generate_fix_summary() {
         let engine = FixEngine::new();
         let violation = create_test_violation();
-        
+
         let result = BatchFixResult {
             total_violations: 1,
             fixed_violations: 1,
@@ -415,7 +470,7 @@ mod fix_engine_tests {
                 line_number: 42,
             }],
         };
-        
+
         // Should not panic
         engine.generate_fix_summary(&result);
     }
