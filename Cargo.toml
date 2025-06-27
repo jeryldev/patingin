@@ -2,6 +2,7 @@
 name = "patingin"
 version = "0.1.0"
 edition = "2021"
+rust-version = "1.70.0"
 authors = ["jeryldev"]
 description = "All-seeing code guardian for pull request inspection and anti-pattern detection"
 license = "MIT"
